@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include <Notifications.h>
+#include <coap/Notifications.h>
 
 #include <list>
+#include <memory>
 #include <string>
 
 class Property {

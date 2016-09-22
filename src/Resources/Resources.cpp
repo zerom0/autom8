@@ -4,8 +4,8 @@
 
 #include "Resources.h"
 
-#include <Path.h>
-#include <RestResponse.h>
+#include <coap/Path.h>
+#include <coap/RestResponse.h>
 
 /**
  * Returns a RestResponse with the resources filtered by the path of the resource where the

@@ -11,8 +11,6 @@ set(SRCS
         Resources/Resource.cpp
         Resources/Resources.cpp)
 
-include_directories(../CoaPP/coap/include)
-
 add_executable(autom8 ${SRCS})
 
 target_link_libraries(autom8 pthread coap)

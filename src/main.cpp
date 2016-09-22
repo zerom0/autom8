@@ -8,9 +8,9 @@
 #include "Resources/Or.h"
 #include "Resources/Resources.h"
 
-#include <CoAP.h>
-#include <json.h>
-#include <URI.h>
+#include <coap/CoAP.h>
+#include <coap/json.h>
+#include <coap/URI.h>
 
 #include <functional>
 #include <iostream>

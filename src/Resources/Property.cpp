@@ -4,7 +4,7 @@
 
 #include "Property.h"
 
-#include <CoAP.h>
+#include <coap/CoAP.h>
 
 void Property::update(const std::string& value) {
   if (not isWriteable()) throw std::runtime_error("Property is read only");
