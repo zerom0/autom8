@@ -14,3 +14,5 @@ set(SRCS
 add_executable(autom8 ${SRCS})
 
 target_link_libraries(autom8 pthread coap)
+
+install(TARGETS autom8 RUNTIME DESTINATION bin)
