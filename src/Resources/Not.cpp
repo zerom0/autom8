@@ -23,7 +23,7 @@ void notResourceUpdated(Resource* resource, const std::string& propertyName) {
     value = "false";
   }
 
-  resource->updateProperty("value", value);
+  resource->setProperty("value", value);
 }
 
 Resource* notResourceFactory() {
