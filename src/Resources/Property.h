@@ -25,6 +25,8 @@ class Property {
 
   void update(const std::string& value);
 
+  void set(const std::string& value);
+
   // TODO: Replace usage by function below
   void subscribe(std::weak_ptr<CoAP::Notifications> observer) {
     observer_.emplace_back(observer);

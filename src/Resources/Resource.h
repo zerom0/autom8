@@ -85,4 +85,6 @@ class Resource {
    * @throws runtime_error if the property does not exist.
    */
   void subscribeProperty(const std::string& name, std::weak_ptr<CoAP::Notifications> notifications);
+
+  void setProperty(const std::string& name, const std::string& value);
 };

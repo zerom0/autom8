@@ -73,3 +73,13 @@ void Resource::deleteProperty(const std::string name) {
 
   properties_.erase(name);
 }
+
+void Resource::setProperty(const std::string& name, const std::string& value) {
+  auto it = properties_.find(name);
+
+  if (it == properties_.end()) throw std::runtime_error("Property not found");
+
+  it->second.set(value);
+  if (onPropertyChanged_) onPropertyChanged_(this, name);
+}
+

@@ -32,7 +32,7 @@ void orResourceUpdated(Resource* resource, const std::string& propertyName) {
     }
   }
 
-  resource->updateProperty("value", value);
+  resource->setProperty("value", value);
 }
 
 Resource* orResourceFactory() {
