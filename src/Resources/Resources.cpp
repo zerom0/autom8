@@ -23,13 +23,13 @@ CoAP::RestResponse listResources(ResourceFactory& factory, Resources& resources,
 
   if (startPath == "/.well-known/core") {
     for (auto& it : factory) {
-      response += "<coap://localhost/" + it.first + ">;ct=40,\n";
+      response += "</" + it.first + ">;ct=40,\n";
     }
   }
 
   for (auto& it : resources) {
     if (it.first.find(startPath) == 0) {
-      response += "<coap://localhost" + it.first + ">;ct=40,\n";
+      response += "<" + it.first + ">;ct=40,\n";
     }
   }
 
@@ -58,7 +58,7 @@ CoAP::RestResponse readResource(Resources& resources, const Path& path) {
 
   std::string payload;
   for (auto& property : it->second->read()) {
-    payload += "<coap://localhost" + path.toString() + "/" + property + ">,";
+    payload += "<" + path.toString() + "/" + property + ">,";
   }
 
   return CoAP::RestResponse()
