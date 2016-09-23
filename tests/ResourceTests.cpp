@@ -6,7 +6,7 @@
 
 #include "Resources/Resource.h"
 
-#include <../CoaPP/coap/include/RestResponse.h>
+#include <coap/RestResponse.h>
 
 // Dummy function as in main.cpp
 void inputURIUpdated(Resource* resource, const std::string& propertyName, const std::string& oldValue, const std::string& newValue) {
