@@ -2,9 +2,13 @@ cmake_minimum_required(VERSION 2.8.7)
 project(autom8)
 
 set(SRCS
+        AndTests.cpp
         ResourceTests.cpp
+        OrTests.cpp
+        ../src/Resources/And.cpp
         ../src/Resources/Resource.cpp
-        ../src/Resources/Property.cpp)
+        ../src/Resources/Property.cpp
+        ../src/Resources/Or.cpp)
 
 include_directories(
         ../src
@@ -13,6 +17,6 @@ include_directories(
 
 add_executable(testsuite ${SRCS})
 
-target_link_libraries(testsuite gtest_main)
+target_link_libraries(testsuite gtest_main gtest)
 
 add_test(NAME testsuite COMMAND testsuite)
