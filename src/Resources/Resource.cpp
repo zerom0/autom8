@@ -40,7 +40,7 @@ std::list<std::string> Resource::read() {
 std::string Resource::readProperty(const std::string& name) {
   auto it = properties_.find(name);
 
-  if (it == properties_.end()) throw std::runtime_error("Property not found");
+  if (it == end(properties_)) throw std::runtime_error("Property not found");
 
   return it->second.read();
 }
@@ -48,7 +48,7 @@ std::string Resource::readProperty(const std::string& name) {
 void Resource::updateProperty(const std::string& name, const std::string& value) {
   auto it = properties_.find(name);
 
-  if (it == properties_.end()) throw std::runtime_error("Property not found");
+  if (it == end(properties_)) throw std::runtime_error("Property not found");
 
   it->second.update(value);
   if (onPropertyChanged_) onPropertyChanged_(this, name);
@@ -57,19 +57,19 @@ void Resource::updateProperty(const std::string& name, const std::string& value)
 void Resource::subscribeProperty(const std::string& name, std::weak_ptr<CoAP::Notifications> notifications) {
   auto it = properties_.find(name);
 
-  if (it == properties_.end()) throw std::runtime_error("Property not found");
+  if (it == end(properties_)) throw std::runtime_error("Property not found");
 
   it->second.subscribe(notifications);
 }
 
 void Resource::createProperty(const std::string name, Property property) {
-  if (properties_.find(name) != properties_.end()) throw std::runtime_error("Property exists already");
+  if (properties_.find(name) != end(properties_)) throw std::runtime_error("Property exists already");
 
   properties_.emplace(name, property);
 }
 
 void Resource::deleteProperty(const std::string name) {
-  if (properties_.find(name) == properties_.end()) throw std::runtime_error("Property does not exist");
+  if (properties_.find(name) == end(properties_)) throw std::runtime_error("Property does not exist");
 
   properties_.erase(name);
 }
@@ -77,7 +77,7 @@ void Resource::deleteProperty(const std::string name) {
 void Resource::setProperty(const std::string& name, const std::string& value) {
   auto it = properties_.find(name);
 
-  if (it == properties_.end()) throw std::runtime_error("Property not found");
+  if (it == end(properties_)) throw std::runtime_error("Property not found");
 
   it->second.set(value);
   if (onPropertyChanged_) onPropertyChanged_(this, name);

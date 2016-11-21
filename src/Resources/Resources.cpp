@@ -42,9 +42,10 @@ CoAP::RestResponse listResources(ResourceFactory& factory, Resources& resources,
 CoAP::RestResponse createResource(ResourceFactory& factory, Resources& resources, const Path& path, const std::string& name) {
   std::string resourceType = path.getPart(0);
   auto it = factory.find(resourceType);
-  if (it == factory.end()) return CoAP::RestResponse().withCode(CoAP::Code::NotAcceptable);
+  if (it == end(factory)) return CoAP::RestResponse().withCode(CoAP::Code::NotAcceptable);
 
   std::string uri = "/" + resourceType + "/" + name;
+  if (resources.find(uri) != end(resources)) delete resources[uri];
   resources[uri] = it->second();
 
   return CoAP::RestResponse().withCode(CoAP::Code::Created);
@@ -52,9 +53,7 @@ CoAP::RestResponse createResource(ResourceFactory& factory, Resources& resources
 
 CoAP::RestResponse readResource(Resources& resources, const Path& path) {
   auto it = resources.find(path.toString());
-  if (it == resources.end()) {
-    return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
-  }
+  if (it == end(resources)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
 
   std::string payload;
   for (auto& property : it->second->read()) {
@@ -69,9 +68,7 @@ CoAP::RestResponse readResource(Resources& resources, const Path& path) {
 
 CoAP::RestResponse deleteResource(Resources& resources, const Path& path) {
   auto it = resources.find(path.toString());
-  if (it == resources.end()) {
-    return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
-  }
+  if (it == end(resources)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
 
   delete it->second;
   resources.erase(it);
@@ -82,9 +79,8 @@ CoAP::RestResponse deleteResource(Resources& resources, const Path& path) {
 
 CoAP::RestResponse readProperty(Resources& resources, const Path& p) {
   auto it = resources.find("/" + p.getPart(0) + "/" + p.getPart(1));
-  if (it == resources.end()) {
-    return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
-  }
+
+  if (it == end(resources)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
 
   return CoAP::RestResponse()
       .withCode(CoAP::Code::Content)
@@ -93,9 +89,8 @@ CoAP::RestResponse readProperty(Resources& resources, const Path& p) {
 
 CoAP::RestResponse updateProperty(Resources& resources, const Path& p, const std::string& value) {
   auto it = resources.find("/" + p.getPart(0) + "/" + p.getPart(1));
-  if (it == resources.end()) {
-    return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
-  }
+  if (it == end(resources)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
+
 
   it->second->updateProperty(p.getPart(2), value);
 
@@ -105,9 +100,7 @@ CoAP::RestResponse updateProperty(Resources& resources, const Path& p, const std
 
 CoAP::RestResponse observeProperty(Resources& resources, const Path& p, std::weak_ptr<CoAP::Notifications> observer) {
   auto it = resources.find("/" + p.getPart(0) + "/" + p.getPart(1));
-  if (it == resources.end()) {
-    return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
-  }
+  if (it == end(resources)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
 
   it->second->subscribeProperty(p.getPart(2), observer);
 
