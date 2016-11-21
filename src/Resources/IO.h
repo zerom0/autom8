@@ -9,8 +9,8 @@
 class Resource;
 
 /**
- * Factory for a new resource of type Input.
+ * Factory for a new resource of type Input/Output.
  *
  * @return Ownership of heap allocated resource.
  */
-std::unique_ptr<Resource> inputResourceFactory();
+std::unique_ptr<Resource> ioResourceFactory();

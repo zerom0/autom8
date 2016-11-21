@@ -88,7 +88,6 @@ CoAP::RestResponse updateProperty(Resources& resources, const Path& p, const std
   auto it = resources.find("/" + p.getPart(0) + "/" + p.getPart(1));
   if (it == end(resources)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
 
-
   it->second->updateProperty(p.getPart(2), value);
 
   return CoAP::RestResponse()

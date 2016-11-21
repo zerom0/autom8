@@ -12,7 +12,7 @@
 class Resource;
 using ResourceChangedCallback = std::function<void(Resource*, const std::string&)>;
 
-void inputURIUpdated(Resource* resource, const std::string& propertyName, const std::string& oldValue, const std::string& newValue);
+void inputURIUpdated(Resource* resource, const std::string& propertyName, const std::string& oldURI, const std::string& newURI);
 
 void inputCountUpdated(Resource* resource, const std::string& propertyName, const std::string& oldValue, const std::string& newValue);
 

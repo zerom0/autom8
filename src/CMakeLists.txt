@@ -4,7 +4,7 @@ project(autom8)
 set(SRCS
         main.cpp
         Resources/And.cpp
-        Resources/Input.cpp
+        Resources/IO.cpp
         Resources/Not.cpp
         Resources/Or.cpp
         Resources/Property.cpp

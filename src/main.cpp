@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "Resources/And.h"
-#include "Resources/Input.h"
+#include "Resources/IO.h"
 #include "Resources/Not.h"
 #include "Resources/Or.h"
 #include "Resources/Resources.h"
@@ -27,15 +27,23 @@ shared_ptr<CoAP::IMessaging> messaging;
 
 map<string, shared_ptr<CoAP::Notifications>> activeNotifications;
 
-
-void inputURIUpdated(Resource* resource, const string& propertyName, const string& oldValue, const string& newValue) {
-  auto theUri = URI::fromString(newValue);
+/**
+ * Handler for URI properties that subscribes to notifications for the resource specified by newURI
+ * and updates the cached values with the values from the received notifications.
+ *
+ * @param resource      Resource for which the handler was called
+ * @param propertyName  Property for which the handler was called
+ * @param oldURI        URI of the old observed resource
+ * @param newURI        URI of the new observed resource
+ */
+void inputURIUpdated(Resource* resource, const string& propertyName, const string& oldURI, const string& newURI) {
+  auto theUri = URI::fromString(newURI);
   auto client = messaging->getClientFor(theUri.getServer().c_str(), theUri.getPort());
-  activeNotifications[newValue] = client.OBSERVE(theUri.getPath());
+  activeNotifications[newURI] = client.OBSERVE(theUri.getPath());
   string valuePropertyName = propertyName.substr(0, propertyName.length() - 3) + "Value";
 
   // TODO: Unregister from old URI
-  activeNotifications[newValue]->subscribe([resource, valuePropertyName](const CoAP::RestResponse& response) {
+  activeNotifications[newURI]->subscribe([resource, valuePropertyName](const CoAP::RestResponse& response) {
     resource->setProperty(valuePropertyName, response.payload());
   });
 }
@@ -45,10 +53,11 @@ int main() {
   messaging = CoAP::newMessaging();
 
   ResourceFactory resourceFactory = {
-      { "and",   andResourceFactory },
-      { "input", inputResourceFactory },
-      { "not",   notResourceFactory },
-      { "or",    orResourceFactory },
+      { "and", andResourceFactory },
+      { "in",  ioResourceFactory },
+      { "not", notResourceFactory },
+      { "or",  orResourceFactory },
+      { "out", ioResourceFactory },
   };
 
   Resources resources;
