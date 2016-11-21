@@ -6,6 +6,8 @@
 
 #include "Resource.h"
 
+#include <coap/json.h>
+
 Resource* newOrResource(ResourceChangedCallback callback) {
   auto r = new Resource(callback);
   r->createProperty("value", Property{false});
@@ -17,22 +19,23 @@ Resource* newOrResource(ResourceChangedCallback callback) {
 void orResourceUpdated(Resource* resource, const std::string& propertyName) {
   if (propertyName.find("input") != 0) return;
 
-  auto count = 0UL;
   try {
-    count = std::stoul(resource->readProperty("inputCount"));
-  } catch (std::exception& e) {
+    unsigned count;
+    CoAP::from_json(resource->readProperty("inputCount"), count);
 
-  }
+    auto value = false;
 
-  std::string value = "false";
-  for (unsigned i = 0; i < count; ++i) {
-    if (resource->readProperty("input" + std::to_string(i) + "Value") == "true") {
-      value = "true";
-      break;
+    for (unsigned i = 0; i < count; ++i) {
+      bool inputValue;
+      CoAP::from_json(resource->readProperty("input" + std::to_string(i) + "Value"), inputValue);
+      value |= inputValue;
     }
-  }
 
-  resource->setProperty("value", value);
+    resource->setProperty("value", CoAP::to_json(value));
+  }
+  catch (std::runtime_error& e) {
+
+  }
 }
 
 std::unique_ptr<Resource> orResourceFactory() {
