@@ -26,6 +26,6 @@ void notResourceUpdated(Resource* resource, const std::string& propertyName) {
   resource->setProperty("value", value);
 }
 
-Resource* notResourceFactory() {
-  return newNotResource(notResourceUpdated);
+std::unique_ptr<Resource> notResourceFactory() {
+  return std::unique_ptr<Resource>(newNotResource(notResourceUpdated));
 }

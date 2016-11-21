@@ -35,6 +35,6 @@ void orResourceUpdated(Resource* resource, const std::string& propertyName) {
   resource->setProperty("value", value);
 }
 
-Resource* orResourceFactory() {
-  return newOrResource(orResourceUpdated);
+std::unique_ptr<Resource> orResourceFactory() {
+  return std::unique_ptr<Resource>(newOrResource(orResourceUpdated));
 }

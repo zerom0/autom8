@@ -45,7 +45,6 @@ CoAP::RestResponse createResource(ResourceFactory& factory, Resources& resources
   if (it == end(factory)) return CoAP::RestResponse().withCode(CoAP::Code::NotAcceptable);
 
   std::string uri = "/" + resourceType + "/" + name;
-  if (resources.find(uri) != end(resources)) delete resources[uri];
   resources[uri] = it->second();
 
   return CoAP::RestResponse().withCode(CoAP::Code::Created);
@@ -70,7 +69,6 @@ CoAP::RestResponse deleteResource(Resources& resources, const Path& path) {
   auto it = resources.find(path.toString());
   if (it == end(resources)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
 
-  delete it->second;
   resources.erase(it);
 
   return CoAP::RestResponse()
@@ -79,7 +77,6 @@ CoAP::RestResponse deleteResource(Resources& resources, const Path& path) {
 
 CoAP::RestResponse readProperty(Resources& resources, const Path& p) {
   auto it = resources.find("/" + p.getPart(0) + "/" + p.getPart(1));
-
   if (it == end(resources)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
 
   return CoAP::RestResponse()

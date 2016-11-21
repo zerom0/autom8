@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <memory>
+
 class Resource;
 
 /**
@@ -11,4 +13,4 @@ class Resource;
  *
  * @return Ownership of heap allocated resource.
  */
-Resource* notResourceFactory();
+std::unique_ptr<Resource> notResourceFactory();

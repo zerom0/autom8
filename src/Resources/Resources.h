@@ -11,9 +11,9 @@
 
 class Path;
 
-using ResourceFactory = std::map<std::string, std::function<Resource*()>>;
+using ResourceFactory = std::map<std::string, std::function<std::unique_ptr<Resource>()>>;
 
-using Resources = std::map<std::string, Resource*>;
+using Resources = std::map<std::string, std::unique_ptr<Resource>>;
 
 /**
  * Returns a RestResponse with the resources filtered by the path of the resource where the

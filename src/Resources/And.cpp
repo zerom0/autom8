@@ -35,6 +35,6 @@ void andResourceUpdated(Resource* resource, const std::string& propertyName) {
   resource->setProperty("value", value);
 }
 
-Resource* andResourceFactory() {
-  return newAndResource(andResourceUpdated);
+std::unique_ptr<Resource> andResourceFactory() {
+  return std::unique_ptr<Resource>(newAndResource(andResourceUpdated));
 }

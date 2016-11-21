@@ -12,6 +12,6 @@ Resource* newInputResource() {
   return resource;
 }
 
-Resource* inputResourceFactory() {
-  return newInputResource();
+std::unique_ptr<Resource> inputResourceFactory() {
+  return std::unique_ptr<Resource>(newInputResource());
 }
