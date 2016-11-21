@@ -6,6 +6,8 @@
 
 #include "Resource.h"
 
+#include <coap/json.h>
+
 Resource* newNotResource(ResourceChangedCallback callback) {
   auto r = new Resource(callback);
   r->createProperty("value", Property{false});
@@ -15,15 +17,16 @@ Resource* newNotResource(ResourceChangedCallback callback) {
 }
 
 void notResourceUpdated(Resource* resource, const std::string& propertyName) {
-  if (propertyName.find("input") != 0) return;
+  if (propertyName != "inputValue") return;
 
-  std::string value = "true";
-
-  if (resource->readProperty("inputValue") == "true") {
-    value = "false";
+  try {
+    bool value;
+    CoAP::from_json(resource->readProperty("inputValue"), value);
+    resource->setProperty("value", CoAP::to_json(!value));
   }
+  catch (std::runtime_error& e) {
 
-  resource->setProperty("value", value);
+  }
 }
 
 std::unique_ptr<Resource> notResourceFactory() {
