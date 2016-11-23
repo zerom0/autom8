@@ -4,6 +4,7 @@
 
 #include "Resources.h"
 
+#include <coap/json.h>
 #include <coap/Path.h>
 #include <coap/RestResponse.h>
 
@@ -103,4 +104,12 @@ CoAP::RestResponse observeProperty(Resources& resources, const Path& p, std::wea
   return CoAP::RestResponse()
       .withCode(CoAP::Code::Content)
       .withPayload(it->second->readProperty(p.getPart(2)));
+}
+
+std::string to_json(const Resources& resources) {
+  std::string json;
+  for (auto& it : resources) {
+    json += CoAP::to_json(it.first) + ":[" + it.second->to_json() + "],";
+  }
+  return "[" + json + "]";
 }

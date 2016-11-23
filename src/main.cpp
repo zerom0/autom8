@@ -48,6 +48,7 @@ void inputURIUpdated(Resource* resource, const string& propertyName, const strin
   });
 }
 
+string fromPersistence = "[\"/and/all_closed\":[[\"input0URI\":\"coap://127.0.0.1:5683/in/fenster/value\",\"input1URI\":\"coap://127.0.0.1:5683/in/tuere/value\",\"inputCount\":\"2\",]],\"/in/fenster\":[[\"inputURI\":\"\",]],\"/in/tuere\":[[\"inputURI\":\"\",]],\"/not/alarm\":[[\"inputURI\":\"coap://127.0.0.1:5683/and/all_closed/value\",]],]";
 
 int main() {
   messaging = CoAP::newMessaging();
@@ -76,7 +77,18 @@ int main() {
           .onPut(bind(updateProperty, ref(resources), _1, _2))
           .onObserve(bind(observeProperty, ref(resources), _1, _2));
 
+  std::string persistence;
+
+  int i = 0;
   for(;;) {
     messaging->loopOnce();
+    i++;
+    if (i%100) {
+      std::string temp = to_json(resources);
+      if (temp != persistence) {
+        persistence = temp;
+        std::cout << persistence << std::endl;
+      }
+    }
   }
 }

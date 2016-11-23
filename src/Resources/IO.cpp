@@ -8,9 +8,9 @@
 
 Resource* newIOResource(ResourceChangedCallback callback) {
   auto r = new Resource(callback);
-  r->createProperty("value", Property{true});
-  r->createProperty("inputURI", Property{std::bind(inputURIUpdated, r, "inputURI", std::placeholders::_1, std::placeholders::_2)});
-  r->createProperty("inputValue", Property{false});
+  r->createProperty("value", Property{true, false});
+  r->createProperty("inputURI", Property{std::bind(inputURIUpdated, r, "inputURI", std::placeholders::_1, std::placeholders::_2), true});
+  r->createProperty("inputValue", Property{false, false});
   return r;
 }
 

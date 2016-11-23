@@ -63,3 +63,5 @@ CoAP::RestResponse readProperty(Resources& resources, const Path& p);
 CoAP::RestResponse updateProperty(Resources& resources, const Path& p, const std::string& value);
 
 CoAP::RestResponse observeProperty(Resources& resources, const Path& p, std::weak_ptr<CoAP::Notifications> observer);
+
+std::string to_json(const Resources& resources);

@@ -4,6 +4,8 @@
 
 #include "Resource.h"
 
+#include <coap/json.h>
+
 void inputCountUpdated(Resource* resource, const std::string& propertyName, const std::string& oldValue, const std::string& newValue) {
   auto oldCount = 0UL;
   try {
@@ -21,8 +23,8 @@ void inputCountUpdated(Resource* resource, const std::string& propertyName, cons
   } else {
     for (auto index = oldCount; index < newCount; ++index) {
       std::string uri = "input" + std::to_string(index) + "URI";
-      resource->createProperty(uri, Property{std::bind(inputURIUpdated, resource, uri, std::placeholders::_1, std::placeholders::_2)});
-      resource->createProperty("input" + std::to_string(index) + "Value", Property{false});
+      resource->createProperty(uri, Property{std::bind(inputURIUpdated, resource, uri, std::placeholders::_1, std::placeholders::_2), true});
+      resource->createProperty("input" + std::to_string(index) + "Value", Property{false, false});
     }
   }
 }
@@ -81,5 +83,15 @@ void Resource::setProperty(const std::string& name, const std::string& value) {
 
   it->second.set(value);
   if (onPropertyChanged_) onPropertyChanged_(this, name);
+}
+
+std::string Resource::to_json() const {
+  std::string json;
+  for (const auto& it : properties_) {
+    if (it.second.isPersistent()) {
+      json += CoAP::to_json(it.first) + ":" + CoAP::to_json(it.second.read()) + ",";
+    }
+  }
+  return "[" + json + "]";
 }
 

@@ -5,6 +5,9 @@
 #include "Property.h"
 
 #include <coap/CoAP.h>
+#include <coap/Logging.h>
+
+SETLOGLEVEL(LLDEBUG)
 
 void Property::update(const std::string& value) {
   if (not isWriteable()) throw std::runtime_error("Property is read only");
@@ -18,6 +21,7 @@ void Property::set(const std::string& value) {
   if (onUpdate_) onUpdate_(oldValue, value);
   for (auto& observer : observer_) {
     auto o = observer.lock();
+    DLOG << (o ? "in": "") << "active observer notified\n";
     if (o) o->onNext(CoAP::RestResponse().withCode(CoAP::Code::Content).withPayload(value));
   }
 }

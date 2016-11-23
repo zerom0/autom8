@@ -87,4 +87,6 @@ class Resource {
   void subscribeProperty(const std::string& name, std::weak_ptr<CoAP::Notifications> notifications);
 
   void setProperty(const std::string& name, const std::string& value);
+
+  std::string to_json() const;
 };

@@ -10,8 +10,8 @@
 
 Resource* newOrResource(ResourceChangedCallback callback) {
   auto r = new Resource(callback);
-  r->createProperty("value", Property{false});
-  r->createProperty("inputCount", Property{std::bind(inputCountUpdated, r, "inputCount", std::placeholders::_1, std::placeholders::_2)});
+  r->createProperty("value", Property{false, false});
+  r->createProperty("inputCount", Property{std::bind(inputCountUpdated, r, "inputCount", std::placeholders::_1, std::placeholders::_2), true});
   r->updateProperty("inputCount", "2");
   return r;
 }
