@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <map>
 #include <memory>
 
 class Resource;
@@ -13,4 +14,4 @@ class Resource;
  *
  * @return Ownership of heap allocated resource.
  */
-std::unique_ptr<Resource> andResourceFactory();
+std::unique_ptr<Resource> andResourceFactory(const std::map<std::string, std::string>& values);

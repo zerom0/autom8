@@ -4,9 +4,12 @@
 
 #include "Resources.h"
 
+#include "../json_ext.h"
+
 #include <coap/json.h>
 #include <coap/Path.h>
 #include <coap/RestResponse.h>
+#include <iostream>
 
 /**
  * Returns a RestResponse with the resources filtered by the path of the resource where the
@@ -40,13 +43,13 @@ CoAP::RestResponse listResources(ResourceFactory& factory, Resources& resources,
       .withPayload(response);
 }
 
-CoAP::RestResponse createResource(ResourceFactory& factory, Resources& resources, const Path& path, const std::string& name) {
+CoAP::RestResponse createResource(ResourceFactory& factory, Resources& resources, const Path& path, const std::string& name, const std::map<std::string, std::string>& values) {
   std::string resourceType = path.getPart(0);
   auto it = factory.find(resourceType);
   if (it == end(factory)) return CoAP::RestResponse().withCode(CoAP::Code::NotAcceptable);
 
   std::string uri = "/" + resourceType + "/" + name;
-  resources[uri] = it->second();
+  resources[uri] = it->second(values);
 
   return CoAP::RestResponse().withCode(CoAP::Code::Created);
 }
@@ -108,8 +111,23 @@ CoAP::RestResponse observeProperty(Resources& resources, const Path& p, std::wea
 
 std::string to_json(const Resources& resources) {
   std::string json;
+  auto first = true;
   for (auto& it : resources) {
-    json += CoAP::to_json(it.first) + ":[" + it.second->to_json() + "],";
+    if (first) first = false;
+    else json += ",";
+    // TODO: CoAP::to_json(key, value) plaziert "" um den value, auch wenn dieser schon json ist.
+    json += CoAP::to_json(it.first) + ":" + it.second->to_json();
   }
-  return "[" + json + "]";
+  return "{" + json + "}";
+}
+
+void createResourcesFromJSON(ResourceFactory& factory, Resources& resources, const std::string& data) {
+  std::map<std::string, std::map<std::string, std::string>> resourceMap;
+  CoAP::from_json(data, resourceMap);
+
+  for (auto resIt = begin(resourceMap); resIt != end(resourceMap); ++resIt) {
+    Path p(resIt->first);
+    auto path = Path("/" + p.getPart(0));
+    createResource(factory, resources, path, p.getPart(1), resIt->second);
+  }
 }

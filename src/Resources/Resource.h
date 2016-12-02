@@ -90,3 +90,8 @@ class Resource {
 
   std::string to_json() const;
 };
+
+inline std::string getValueOr(const std::map<std::string, std::string>& values, const std::string& key, const std::string& alternative) {
+  auto it = values.find(key);
+  return (it != end(values)) ? it->second : alternative;
+}

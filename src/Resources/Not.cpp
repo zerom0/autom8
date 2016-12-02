@@ -8,11 +8,14 @@
 
 #include <coap/json.h>
 
-Resource* newNotResource(ResourceChangedCallback callback) {
+Resource* newNotResource(ResourceChangedCallback callback, const std::map<std::string, std::string>& values) {
   auto r = new Resource(callback);
   r->createProperty("value", Property{false, false});
   r->createProperty("inputURI", Property{std::bind(inputURIUpdated, r, "inputURI", std::placeholders::_1, std::placeholders::_2), true});
   r->createProperty("inputValue", Property{false, false});
+
+  for (auto it = begin(values); it != end(values); ++it) r->updateProperty(it->first, it->second);
+
   return r;
 }
 
@@ -29,6 +32,6 @@ void notResourceUpdated(Resource* resource, const std::string& propertyName) {
   }
 }
 
-std::unique_ptr<Resource> notResourceFactory() {
-  return std::unique_ptr<Resource>(newNotResource(notResourceUpdated));
+std::unique_ptr<Resource> notResourceFactory(const std::map<std::string, std::string>& values) {
+  return std::unique_ptr<Resource>(newNotResource(notResourceUpdated, values));
 }

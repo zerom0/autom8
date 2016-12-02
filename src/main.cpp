@@ -37,7 +37,11 @@ map<string, shared_ptr<CoAP::Notifications>> activeNotifications;
  * @param newURI        URI of the new observed resource
  */
 void inputURIUpdated(Resource* resource, const string& propertyName, const string& oldURI, const string& newURI) {
-  auto theUri = URI::fromString(newURI);
+  // TODO: URI::fromString cannot handle empty strings -> Bang
+  auto theUri = newURI.empty() ? URI{} : URI::fromString(newURI);
+
+  if (newURI.empty()) return;
+
   auto client = messaging->getClientFor(theUri.getServer().c_str(), theUri.getPort());
   activeNotifications[newURI] = client.OBSERVE(theUri.getPath());
   string valuePropertyName = propertyName.substr(0, propertyName.length() - 3) + "Value";
@@ -48,7 +52,17 @@ void inputURIUpdated(Resource* resource, const string& propertyName, const strin
   });
 }
 
-string fromPersistence = "[\"/and/all_closed\":[[\"input0URI\":\"coap://127.0.0.1:5683/in/fenster/value\",\"input1URI\":\"coap://127.0.0.1:5683/in/tuere/value\",\"inputCount\":\"2\",]],\"/in/fenster\":[[\"inputURI\":\"\",]],\"/in/tuere\":[[\"inputURI\":\"\",]],\"/not/alarm\":[[\"inputURI\":\"coap://127.0.0.1:5683/and/all_closed/value\",]],]";
+string fromPersistence =
+    "{"
+        "\"/in/fenster\":{\"inputURI\":\"\"},"
+        "\"/in/tuere\":{\"inputURI\":\"\"},"
+        "\"/and/all_closed\":{"
+            "\"input0URI\":\"coap://127.0.0.1:5683/in/fenster/value\","
+            "\"input1URI\":\"coap://127.0.0.1:5683/in/tuere/value\","
+            "\"inputCount\":\"2\""
+        "},"
+        "\"/not/alarm\":{\"inputURI\":\"coap://127.0.0.1:5683/and/all_closed/value\"}"
+    "}";
 
 int main() {
   messaging = CoAP::newMessaging();
@@ -62,13 +76,16 @@ int main() {
   };
 
   Resources resources;
+  createResourcesFromJSON(resourceFactory, resources, fromPersistence);
+
+  const std::map<std::string, std::string> noValues;
 
   messaging->requestHandler()
       .onUri("/.well-known/core")
           .onGet(bind(listResources, ref(resourceFactory), ref(resources), _1))
       .onUri("/?") // Resources
           .onGet(bind(listResources, ref(resourceFactory), ref(resources), _1))
-          .onPost(bind(createResource, ref(resourceFactory), ref(resources), _1, _2))
+          .onPost(bind(createResource, ref(resourceFactory), ref(resources), _1, _2, noValues))
       .onUri("/?/?") // Resource
           .onGet(bind(readResource, ref(resources), _1))
           .onDelete(bind(deleteResource, ref(resources), _1))

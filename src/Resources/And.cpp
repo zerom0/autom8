@@ -9,11 +9,14 @@
 
 #include <coap/json.h>
 
-Resource* newAndResource(ResourceChangedCallback callback) {
+Resource* newAndResource(ResourceChangedCallback callback, const std::map<std::string, std::string>& values) {
   auto r = new Resource(callback);
   r->createProperty("value", Property{false, false});
   r->createProperty("inputCount", Property{std::bind(inputCountUpdated, r, "inputCount", std::placeholders::_1, std::placeholders::_2), true});
-  r->updateProperty("inputCount", "2");
+  r->updateProperty("inputCount", getValueOr(values, "inputCount", "2"));
+
+  for (auto it = begin(values); it != end(values); ++it) r->updateProperty(it->first, it->second);
+
   return r;
 }
 
@@ -39,6 +42,6 @@ void andResourceUpdated(Resource* resource, const std::string& propertyName) {
   }
 }
 
-std::unique_ptr<Resource> andResourceFactory() {
-  return std::unique_ptr<Resource>(newAndResource(andResourceUpdated));
+std::unique_ptr<Resource> andResourceFactory(const std::map<std::string, std::string>& values) {
+  return std::unique_ptr<Resource>(newAndResource(andResourceUpdated, values));
 }

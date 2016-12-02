@@ -11,7 +11,7 @@
 
 class Path;
 
-using ResourceFactory = std::map<std::string, std::function<std::unique_ptr<Resource>()>>;
+using ResourceFactory = std::map<std::string, std::function<std::unique_ptr<Resource>(std::map<std::string, std::string>)>>;
 
 using Resources = std::map<std::string, std::unique_ptr<Resource>>;
 
@@ -36,7 +36,7 @@ CoAP::RestResponse listResources(ResourceFactory& factory, Resources& resources,
  * @param name     Name of the newly created resource.
  * @return RestResponse with indication of success or failure.
  */
-CoAP::RestResponse createResource(ResourceFactory& factory, Resources& resources, const Path& path, const std::string& name);
+CoAP::RestResponse createResource(ResourceFactory& factory, Resources& resources, const Path& path, const std::string& name, const std::map<std::string, std::string>& values);
 
 /**
  * Returns a RestResponse with the properties of the resource in application/link-format.
@@ -65,3 +65,5 @@ CoAP::RestResponse updateProperty(Resources& resources, const Path& p, const std
 CoAP::RestResponse observeProperty(Resources& resources, const Path& p, std::weak_ptr<CoAP::Notifications> observer);
 
 std::string to_json(const Resources& resources);
+
+void createResourcesFromJSON(ResourceFactory& factory, Resources& resources, const std::string& data);

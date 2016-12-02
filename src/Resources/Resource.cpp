@@ -87,11 +87,14 @@ void Resource::setProperty(const std::string& name, const std::string& value) {
 
 std::string Resource::to_json() const {
   std::string json;
+  auto first = true;
+
   for (const auto& it : properties_) {
     if (it.second.isPersistent()) {
-      json += CoAP::to_json(it.first) + ":" + CoAP::to_json(it.second.read()) + ",";
+      if (first) first = false;
+      else json += ",";
+      json += CoAP::to_json(it.first) + ":" + CoAP::to_json(it.second.read());
     }
   }
-  return "[" + json + "]";
+  return "{" + json + "}";
 }
-
