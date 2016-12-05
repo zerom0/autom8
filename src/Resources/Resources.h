@@ -13,57 +13,62 @@ class Path;
 
 using ResourceFactory = std::map<std::string, std::function<std::unique_ptr<Resource>(std::map<std::string, std::string>)>>;
 
-using Resources = std::map<std::string, std::unique_ptr<Resource>>;
+using ResourceMap = std::map<std::string, std::unique_ptr<Resource>>;
 
-/**
- * Returns a RestResponse with the resources filtered by the path of the resource where the
- * function is called upon. The response has the content type application/link-format.
- *
- * @param factory     The resource factory to get the URIs to the element roots.
- * @param resources   The container with all existing resources.
- * @param path        The path on which the request was executed on.
- * @return            RestResponse with the filtered resources in application/link-format.
- */
-CoAP::RestResponse listResources(ResourceFactory& factory, Resources& resources, const Path& path);
+class Resources {
+  ResourceMap resources_;
+  ResourceFactory& factory_;
 
-/**
- * Creates a new resource with the given factory and stores it in the given resource container.
- * The path on which the function was called determines the type of the resource to be created.
- *
- * @param factory   Factory to create the resource.
- * @param resources Resource container to receive the newly created resource.
- * @param path      Path on which the function was called.
- * @param name     Name of the newly created resource.
- * @return RestResponse with indication of success or failure.
- */
-CoAP::RestResponse createResource(ResourceFactory& factory, Resources& resources, const Path& path, const std::string& name, const std::map<std::string, std::string>& values);
+ public:
+  Resources(ResourceFactory& factory) : factory_(factory) { }
 
-/**
- * Returns a RestResponse with the properties of the resource in application/link-format.
- * The path on which the function was called determines the resource that shall be considered.
- *
- * @param resources Resource container with the resources to consider.
- * @param path      Path on which the function was called.
- * @return RestResponse with the resource properties in application/link-format.
- */
-CoAP::RestResponse readResource(Resources& resources, const Path& path);
+  /**
+   * Returns a RestResponse with the resources filtered by the path of the resource where the
+   * function is called upon. The response has the content type application/link-format.
+   *
+   * @param path        The path on which the request was executed on.
+   * @return            RestResponse with the filtered resources in application/link-format.
+   */
+  CoAP::RestResponse listResources(const Path& path);
 
-/**
- * Removes a resource from the given resource container.
- * The path on which the function was called determines the resource to be removed.
- *
- * @param resources Resource container with the resources.
- * @param path      Path on which the function was called.
- * @return RestResponse with indication of success or failure.
- */
-CoAP::RestResponse deleteResource(Resources& resources, const Path& path);
+  /**
+   * Creates a new resource with the given factory and stores it in the given resource container.
+   * The path on which the function was called determines the type of the resource to be created.
+   *
+   * @param path      Path on which the function was called.
+   * @param name     Name of the newly created resource.
+   * @return RestResponse with indication of success or failure.
+   */
+  CoAP::RestResponse createResource(const Path& path,
+                                    const std::string& name,
+                                    const std::map<std::string, std::string>& values);
 
-CoAP::RestResponse readProperty(Resources& resources, const Path& p);
+  /**
+   * Returns a RestResponse with the properties of the resource in application/link-format.
+   * The path on which the function was called determines the resource that shall be considered.
+   *
+   * @param path      Path on which the function was called.
+   * @return RestResponse with the resource properties in application/link-format.
+   */
+  CoAP::RestResponse readResource(const Path& path);
 
-CoAP::RestResponse updateProperty(Resources& resources, const Path& p, const std::string& value);
+  /**
+   * Removes a resource from the given resource container.
+   * The path on which the function was called determines the resource to be removed.
+   *
+   * @param path      Path on which the function was called.
+   * @return RestResponse with indication of success or failure.
+   */
+  CoAP::RestResponse deleteResource(const Path& path);
 
-CoAP::RestResponse observeProperty(Resources& resources, const Path& p, std::weak_ptr<CoAP::Notifications> observer);
+  CoAP::RestResponse readProperty(const Path& p);
 
-std::string to_json(const Resources& resources);
+  CoAP::RestResponse
+  updateProperty(const Path& p, const std::string& value);
 
-void createResourcesFromJSON(ResourceFactory& factory, Resources& resources, const std::string& data);
+  CoAP::RestResponse observeProperty(const Path& p, std::weak_ptr<CoAP::Notifications> observer);
+
+  std::string to_json();
+
+  void createResourcesFromJSON(const std::string& data);
+};

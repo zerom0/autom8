@@ -20,18 +20,18 @@
  * @param path        The path on which the request was executed on.
  * @return            RestResponse with the filtered resources in application/link-format.
  */
-CoAP::RestResponse listResources(ResourceFactory& factory, Resources& resources, const Path& path) {
+CoAP::RestResponse Resources::listResources(const Path& path) {
   std::string response;
 
   std::string startPath = path.toString();
 
   if (startPath == "/.well-known/core") {
-    for (auto& it : factory) {
+    for (auto& it : factory_) {
       response += "</" + it.first + ">;ct=40,\n";
     }
   }
 
-  for (auto& it : resources) {
+  for (auto& it : resources_) {
     if (it.first.find(startPath) == 0) {
       response += "<" + it.first + ">;ct=40,\n";
     }
@@ -43,20 +43,22 @@ CoAP::RestResponse listResources(ResourceFactory& factory, Resources& resources,
       .withPayload(response);
 }
 
-CoAP::RestResponse createResource(ResourceFactory& factory, Resources& resources, const Path& path, const std::string& name, const std::map<std::string, std::string>& values) {
+CoAP::RestResponse Resources::createResource(const Path& path,
+                                             const std::string& name,
+                                             const std::map<std::string, std::string>& values) {
   std::string resourceType = path.getPart(0);
-  auto it = factory.find(resourceType);
-  if (it == end(factory)) return CoAP::RestResponse().withCode(CoAP::Code::NotAcceptable);
+  auto it = factory_.find(resourceType);
+  if (it == end(factory_)) return CoAP::RestResponse().withCode(CoAP::Code::NotAcceptable);
 
   std::string uri = "/" + resourceType + "/" + name;
-  resources[uri] = it->second(values);
+  resources_[uri] = it->second(values);
 
   return CoAP::RestResponse().withCode(CoAP::Code::Created);
 }
 
-CoAP::RestResponse readResource(Resources& resources, const Path& path) {
-  auto it = resources.find(path.toString());
-  if (it == end(resources)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
+CoAP::RestResponse Resources::readResource(const Path& path) {
+  auto it = resources_.find(path.toString());
+  if (it == end(resources_)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
 
   std::string payload;
   for (auto& property : it->second->read()) {
@@ -69,28 +71,28 @@ CoAP::RestResponse readResource(Resources& resources, const Path& path) {
       .withPayload(payload);
 }
 
-CoAP::RestResponse deleteResource(Resources& resources, const Path& path) {
-  auto it = resources.find(path.toString());
-  if (it == end(resources)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
+CoAP::RestResponse Resources::deleteResource(const Path& path) {
+  auto it = resources_.find(path.toString());
+  if (it == end(resources_)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
 
-  resources.erase(it);
+  resources_.erase(it);
 
   return CoAP::RestResponse()
       .withCode(CoAP::Code::Deleted);
 }
 
-CoAP::RestResponse readProperty(Resources& resources, const Path& p) {
-  auto it = resources.find("/" + p.getPart(0) + "/" + p.getPart(1));
-  if (it == end(resources)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
+CoAP::RestResponse Resources::readProperty(const Path& p) {
+  auto it = resources_.find("/" + p.getPart(0) + "/" + p.getPart(1));
+  if (it == end(resources_)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
 
   return CoAP::RestResponse()
       .withCode(CoAP::Code::Content)
       .withPayload(it->second->readProperty(p.getPart(2)));
 }
 
-CoAP::RestResponse updateProperty(Resources& resources, const Path& p, const std::string& value) {
-  auto it = resources.find("/" + p.getPart(0) + "/" + p.getPart(1));
-  if (it == end(resources)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
+CoAP::RestResponse Resources::updateProperty(const Path& p, const std::string& value) {
+  auto it = resources_.find("/" + p.getPart(0) + "/" + p.getPart(1));
+  if (it == end(resources_)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
 
   it->second->updateProperty(p.getPart(2), value);
 
@@ -98,9 +100,10 @@ CoAP::RestResponse updateProperty(Resources& resources, const Path& p, const std
       .withCode(CoAP::Code::Changed);
 }
 
-CoAP::RestResponse observeProperty(Resources& resources, const Path& p, std::weak_ptr<CoAP::Notifications> observer) {
-  auto it = resources.find("/" + p.getPart(0) + "/" + p.getPart(1));
-  if (it == end(resources)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
+CoAP::RestResponse
+Resources::observeProperty(const Path& p, std::weak_ptr<CoAP::Notifications> observer) {
+  auto it = resources_.find("/" + p.getPart(0) + "/" + p.getPart(1));
+  if (it == end(resources_)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
 
   it->second->subscribeProperty(p.getPart(2), observer);
 
@@ -109,10 +112,10 @@ CoAP::RestResponse observeProperty(Resources& resources, const Path& p, std::wea
       .withPayload(it->second->readProperty(p.getPart(2)));
 }
 
-std::string to_json(const Resources& resources) {
+std::string Resources::to_json() {
   std::string json;
   auto first = true;
-  for (auto& it : resources) {
+  for (auto& it : resources_) {
     if (first) first = false;
     else json += ",";
     // TODO: CoAP::to_json(key, value) plaziert "" um den value, auch wenn dieser schon json ist.
@@ -121,13 +124,13 @@ std::string to_json(const Resources& resources) {
   return "{" + json + "}";
 }
 
-void createResourcesFromJSON(ResourceFactory& factory, Resources& resources, const std::string& data) {
+void Resources::createResourcesFromJSON(const std::string& data) {
   std::map<std::string, std::map<std::string, std::string>> resourceMap;
   CoAP::from_json(data, resourceMap);
 
   for (auto resIt = begin(resourceMap); resIt != end(resourceMap); ++resIt) {
     Path p(resIt->first);
     auto path = Path("/" + p.getPart(0));
-    createResource(factory, resources, path, p.getPart(1), resIt->second);
+    createResource(path, p.getPart(1), resIt->second);
   }
 }

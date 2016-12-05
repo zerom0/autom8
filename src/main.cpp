@@ -75,24 +75,24 @@ int main() {
       { "out", ioResourceFactory },
   };
 
-  Resources resources;
-  createResourcesFromJSON(resourceFactory, resources, fromPersistence);
+  Resources resources(resourceFactory);
+  resources.createResourcesFromJSON(fromPersistence);
 
   const std::map<std::string, std::string> noValues;
 
   messaging->requestHandler()
       .onUri("/.well-known/core")
-          .onGet(bind(listResources, ref(resourceFactory), ref(resources), _1))
+          .onGet(bind(&Resources::listResources, &resources, _1))
       .onUri("/?") // Resources
-          .onGet(bind(listResources, ref(resourceFactory), ref(resources), _1))
-          .onPost(bind(createResource, ref(resourceFactory), ref(resources), _1, _2, noValues))
+          .onGet(bind(&Resources::listResources, &resources, _1))
+          .onPost(bind(&Resources::createResource, &resources, _1, _2, noValues))
       .onUri("/?/?") // Resource
-          .onGet(bind(readResource, ref(resources), _1))
-          .onDelete(bind(deleteResource, ref(resources), _1))
+          .onGet(bind(&Resources::readResource, &resources, _1))
+          .onDelete(bind(&Resources::deleteResource, &resources, _1))
       .onUri("/?/?/?") // Property
-          .onGet(bind(readProperty, ref(resources), _1))
-          .onPut(bind(updateProperty, ref(resources), _1, _2))
-          .onObserve(bind(observeProperty, ref(resources), _1, _2));
+          .onGet(bind(&Resources::readProperty, &resources, _1))
+          .onPut(bind(&Resources::updateProperty, &resources, _1, _2))
+          .onObserve(bind(&Resources::observeProperty, &resources, _1, _2));
 
   std::string persistence;
 
@@ -101,7 +101,7 @@ int main() {
     messaging->loopOnce();
     i++;
     if (i%100) {
-      std::string temp = to_json(resources);
+      std::string temp = resources.to_json();
       if (temp != persistence) {
         persistence = temp;
         std::cout << persistence << std::endl;
