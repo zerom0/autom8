@@ -8,35 +8,35 @@
 #include "Resources/Resource.h"
 
 TEST(And, bothFalse) {
-  auto resource = andResourceFactory();
+  auto resource = andResourceFactory(std::map<std::string, std::string>{});
   resource->setProperty("input0Value", "false");
   resource->setProperty("input1Value", "false");
   ASSERT_EQ("false", resource->readProperty("value"));
 }
 
 TEST(And, firstTrueSecondFalse) {
-  auto resource = andResourceFactory();
+  auto resource = andResourceFactory(std::map<std::string, std::string>{});
   resource->setProperty("input0Value", "true");
   resource->setProperty("input1Value", "false");
   ASSERT_EQ("false", resource->readProperty("value"));
 }
 
 TEST(And, firstFalseSecondTrue) {
-  auto resource = andResourceFactory();
+  auto resource = andResourceFactory(std::map<std::string, std::string>{});
   resource->setProperty("input0Value", "false");
   resource->setProperty("input1Value", "true");
   ASSERT_EQ("false", resource->readProperty("value"));
 }
 
 TEST(And, bothTrue) {
-  auto resource = andResourceFactory();
+  auto resource = andResourceFactory(std::map<std::string, std::string>{});
   resource->setProperty("input0Value", "true");
   resource->setProperty("input1Value", "true");
   ASSERT_EQ("true", resource->readProperty("value"));
 }
 
 TEST(And, threeInputs) {
-  auto resource = andResourceFactory();
+  auto resource = andResourceFactory(std::map<std::string, std::string>{});
   resource->setProperty("inputCount", "3");
   resource->setProperty("input0Value", "true");
   resource->setProperty("input1Value", "true");

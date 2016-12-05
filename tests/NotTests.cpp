@@ -8,13 +8,13 @@
 #include "Resources/Resource.h"
 
 TEST(Not, true) {
-  auto resource = notResourceFactory();
+  auto resource = notResourceFactory(std::map<std::string, std::string>{});
   resource->setProperty("inputValue", "true");
   ASSERT_EQ("false", resource->readProperty("value"));
 }
 
 TEST(Not, false) {
-  auto resource = notResourceFactory();
+  auto resource = notResourceFactory(std::map<std::string, std::string>{});
   resource->setProperty("inputValue", "false");
   ASSERT_EQ("true", resource->readProperty("value"));
 }

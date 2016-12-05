@@ -8,35 +8,35 @@
 #include "Resources/Resource.h"
 
 TEST(Or, bothFalse) {
-  auto resource = orResourceFactory();
+  auto resource = orResourceFactory(std::map<std::string, std::string>{});
   resource->setProperty("input0Value", "false");
   resource->setProperty("input1Value", "false");
   ASSERT_EQ("false", resource->readProperty("value"));
 }
 
 TEST(Or, firstTrueSecondFalse) {
-  auto resource = orResourceFactory();
+  auto resource = orResourceFactory(std::map<std::string, std::string>{});
   resource->setProperty("input0Value", "true");
   resource->setProperty("input1Value", "false");
   ASSERT_EQ("true", resource->readProperty("value"));
 }
 
 TEST(Or, firstFalseSecondTrue) {
-  auto resource = orResourceFactory();
+  auto resource = orResourceFactory(std::map<std::string, std::string>{});
   resource->setProperty("input0Value", "false");
   resource->setProperty("input1Value", "true");
   ASSERT_EQ("true", resource->readProperty("value"));
 }
 
 TEST(Or, bothTrue) {
-  auto resource = orResourceFactory();
+  auto resource = orResourceFactory(std::map<std::string, std::string>{});
   resource->setProperty("input0Value", "true");
   resource->setProperty("input1Value", "true");
   ASSERT_EQ("true", resource->readProperty("value"));
 }
 
 TEST(Or, threeInputs) {
-  auto resource = orResourceFactory();
+  auto resource = orResourceFactory(std::map<std::string, std::string>{});
   resource->setProperty("inputCount", "3");
   resource->setProperty("input0Value", "false");
   resource->setProperty("input1Value", "false");

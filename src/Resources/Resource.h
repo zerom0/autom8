@@ -6,6 +6,8 @@
 
 #include "Property.h"
 
+#include <CoAP/Optional.h>
+
 #include <map>
 #include <string>
 
@@ -54,6 +56,8 @@ class Resource {
    * @throws runtime_error if the property does not exist.
    */
   void deleteProperty(const std::string name);
+
+  Property* getProperty(const std::string& name);
 
   /**
    * Returns the value of a property.
