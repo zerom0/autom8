@@ -7,25 +7,36 @@
 #include "Resource.h"
 
 #include <coap/json.h>
+#include <coap/Logging.h>
 
-Resource* newNotResource(ResourceChangedCallback callback, const std::map<std::string, std::string>& values) {
-  auto r = new Resource(callback);
-  r->createProperty("value", Property{false, false});
-  r->createProperty("inputURI", Property{std::bind(inputURIUpdated, r, "inputURI", std::placeholders::_1, std::placeholders::_2), true});
-  r->createProperty("inputValue", Property{false, false});
+using std::placeholders::_1;
+using std::placeholders::_2;
+
+SETLOGLEVEL(LLDEBUG)
+
+Resource* newNotResource(InputValueUpdated callback, const std::map<std::string, std::string>& values) {
+  DLOG << "newNotResource()\n";
+
+  auto r = new Resource();
+  r->createProperty("value", false, false);
+
+  auto value = r->createProperty("inputValue", std::bind(callback, r, "inputValue", _1, _2), false);
+  r->createProperty("inputURI", std::bind(inputURIUpdated, value, _1, _2), true);
 
   for (auto it = begin(values); it != end(values); ++it) r->getProperty(it->first)->setValue(it->second);
 
   return r;
 }
 
-void notResourceUpdated(Resource* resource, const std::string& propertyName) {
+void notResourceUpdated(Resource* resource, const std::string& propertyName, const std::string& oldValue, const std::string& newValue) {
+  DLOG << "notResourceUpdated(..., " << propertyName << ", " << oldValue << ", " << newValue << ")\n";
+
   if (propertyName != "inputValue") return;
 
   try {
     bool value;
-    CoAP::from_json(resource->getProperty("inputValue")->getValue(), value);
-    resource->setProperty("value", CoAP::to_json(!value));
+    CoAP::from_json(newValue, value);
+    resource->getProperty("value")->setValue(CoAP::to_json(!value), true);
   }
   catch (std::runtime_error& e) {
 

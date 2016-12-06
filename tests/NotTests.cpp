@@ -10,11 +10,11 @@
 TEST(Not, true) {
   auto resource = notResourceFactory(std::map<std::string, std::string>{});
   resource->setProperty("inputValue", "true");
-  ASSERT_EQ("false", resource->readProperty("value"));
+  ASSERT_EQ("false", resource->getProperty("value")->getValue());
 }
 
 TEST(Not, false) {
   auto resource = notResourceFactory(std::map<std::string, std::string>{});
   resource->setProperty("inputValue", "false");
-  ASSERT_EQ("true", resource->readProperty("value"));
+  ASSERT_EQ("true", resource->getProperty("value")->getValue());
 }

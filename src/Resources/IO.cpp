@@ -5,22 +5,33 @@
 #include "IO.h"
 
 #include "Resource.h"
+#include <coap/Logging.h>
 
-Resource* newIOResource(ResourceChangedCallback callback, const std::map<std::string, std::string>& values) {
-  auto r = new Resource(callback);
-  r->createProperty("value", Property{true, false});
-  r->createProperty("inputURI", Property{std::bind(inputURIUpdated, r, "inputURI", std::placeholders::_1, std::placeholders::_2), true});
-  r->createProperty("inputValue", Property{false, false});
+using std::placeholders::_1;
+using std::placeholders::_2;
+
+SETLOGLEVEL(LLDEBUG)
+
+Resource* newIOResource(InputValueUpdated callback, const std::map<std::string, std::string>& values) {
+  DLOG << "newIOResource()\n";
+
+  auto r = new Resource();
+  r->createProperty("value", true, false);
+
+  auto value = r->createProperty("inputValue", std::bind(callback, r, "inputValue", _1, _2), false);
+  r->createProperty("inputURI", std::bind(inputURIUpdated, value, _1, _2), true);
 
   for (auto it = begin(values); it != end(values); ++it) r->getProperty(it->first)->setValue(it->second);
 
   return r;
 }
 
-void ioResourceUpdated(Resource* resource, const std::string& propertyName) {
+void ioResourceUpdated(Resource* resource, const std::string& propertyName, const std::string& oldValue, const std::string& newValue) {
+  DLOG << "ioResourceUpdated(..., " << propertyName << ", " << oldValue << ", " << newValue << ")\n";
+
   if (propertyName != "inputValue") return;
 
-  resource->setProperty("value", resource->getProperty("inputValue")->getValue());
+  resource->getProperty("value")->setValue(newValue, true);
 }
 
 std::unique_ptr<Resource> ioResourceFactory(const std::map<std::string, std::string>& values) {

@@ -31,12 +31,11 @@ map<string, shared_ptr<CoAP::Notifications>> activeNotifications;
  * Handler for URI properties that subscribes to notifications for the resource specified by newURI
  * and updates the cached values with the values from the received notifications.
  *
- * @param resource      Resource for which the handler was called
- * @param propertyName  Property for which the handler was called
- * @param oldURI        URI of the old observed resource
- * @param newURI        URI of the new observed resource
+ * @param property  Property for which the handler was called
+ * @param oldURI    URI of the old observed resource
+ * @param newURI    URI of the new observed resource
  */
-void inputURIUpdated(Resource* resource, const string& propertyName, const string& oldURI, const string& newURI) {
+void inputURIUpdated(Property* property, const string& oldURI, const string& newURI) {
   // TODO: URI::fromString cannot handle empty strings -> Bang
   auto theUri = newURI.empty() ? URI{} : URI::fromString(newURI);
 
@@ -44,12 +43,10 @@ void inputURIUpdated(Resource* resource, const string& propertyName, const strin
 
   auto client = messaging->getClientFor(theUri.getServer().c_str(), theUri.getPort());
   activeNotifications[newURI] = client.OBSERVE(theUri.getPath());
-  string valuePropertyName = propertyName.substr(0, propertyName.length() - 3) + "Value";
 
   // TODO: Unregister from old URI
-  // TODO: use property instead of resource if possible
-  activeNotifications[newURI]->subscribe([resource, valuePropertyName](const CoAP::RestResponse& response) {
-    resource->setProperty(valuePropertyName, response.payload());
+  activeNotifications[newURI]->subscribe([property](const CoAP::RestResponse& response) {
+    property->setValue(response.payload(), true);
   });
 }
 

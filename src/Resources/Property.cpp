@@ -9,7 +9,14 @@
 
 SETLOGLEVEL(LLDEBUG)
 
+std::string Property::getValue() const {
+  DLOG << "Property::getValue() -> " << value_ << "\n";
+  return value_;
+}
+
 void Property::setValue(const std::string& value, bool force) {
+  DLOG << "Property::setValue(" << value << ", " << (force ? "true":"false") << ")\n";
+
   if (not force and not isWriteable()) throw std::runtime_error("Property is read only");
 
   auto oldValue = value_;

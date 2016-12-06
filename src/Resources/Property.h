@@ -11,7 +11,7 @@
 #include <string>
 
 class Property {
-  const bool writeable_;
+  const bool writeable_{true};
   const bool persistent_{false};
   std::string value_;
   std::list<std::weak_ptr<CoAP::Notifications>> observer_;
@@ -20,9 +20,9 @@ class Property {
  public:
   explicit Property(bool writeable, bool persitent) : writeable_(writeable), persistent_(persitent) { }
   explicit Property(std::function<void(const std::string&, const std::string&)> onUpdate, bool persistent)
-      : writeable_(true), persistent_(persistent), onUpdate_(onUpdate) { }
+      : persistent_(persistent), onUpdate_(onUpdate) { }
 
-  std::string getValue() const { return value_; }
+  std::string getValue() const;
 
   void setValue(const std::string& value, bool force = false);
 

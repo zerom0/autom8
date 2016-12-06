@@ -9,7 +9,7 @@
 #include <coap/RestResponse.h>
 
 // Dummy function as in main.cpp
-void inputURIUpdated(Resource* resource, const std::string& propertyName, const std::string& oldValue, const std::string& newValue) {
+void inputURIUpdated(Property* property, const std::string& oldValue, const std::string& newValue) {
 }
 
 TEST(Resource, read_EmptyResource) {
@@ -22,21 +22,21 @@ TEST(Resource, readProperty) {
   Resource r(nullptr);
   auto propName = std::string("aProperty");
 
-  EXPECT_THROW(r.readProperty(propName), std::runtime_error);
+  EXPECT_THROW(r.getProperty(propName), std::runtime_error);
 }
 
 TEST(Resource, readProperty_NonExistingPropertyThrows) {
   Resource r(nullptr);
   auto propName = std::string("aProperty");
 
-  EXPECT_THROW(r.readProperty(propName), std::runtime_error);
+  EXPECT_THROW(r.getProperty(propName)->getValue(), std::runtime_error);
 }
 
 TEST(Resource, createProperty_read) {
   Resource r(nullptr);
   auto propName = std::string("aProperty");
 
-  EXPECT_THROW(r.readProperty(propName), std::runtime_error);
+  EXPECT_THROW(r.getProperty(propName)->getValue(), std::runtime_error);
 
   Property p(false, false);
   r.createProperty(propName, p);
@@ -82,11 +82,11 @@ TEST(Resource, updateProperty) {
   Property p(true, false);
   r.createProperty(propName, p);
 
-  EXPECT_EQ("", r.readProperty(propName));
+  EXPECT_EQ("", r.getProperty(propName)->getValue());
 
-  r.updateProperty(propName, "new");
+  r.getProperty(propName)->setValue("new");
 
-  EXPECT_EQ("new", r.readProperty(propName));
+  EXPECT_EQ("new", r.getProperty(propName)->getValue());
 }
 
 TEST(Resource, updateProperty_ReadOnlyCannotBeUpdated) {
@@ -96,18 +96,18 @@ TEST(Resource, updateProperty_ReadOnlyCannotBeUpdated) {
   Property p(false, false); // isWriteable = false
   r.createProperty(propName, p);
 
-  EXPECT_EQ("", r.readProperty(propName));
+  EXPECT_EQ("", r.getProperty(propName)->getValue());
 
-  EXPECT_THROW(r.updateProperty(propName, "new"), std::runtime_error);
+  EXPECT_THROW(r.getProperty(propName)->setValue("new"), std::runtime_error);
 
-  EXPECT_EQ("", r.readProperty(propName));
+  EXPECT_EQ("", r.getProperty(propName)->getValue());
 }
 
 TEST(Resource, updateProperty_UpdateUnknownThrows) {
   Resource r(nullptr);
   auto propName = std::string("aProperty");
 
-  EXPECT_THROW(r.updateProperty(propName, ""), std::runtime_error);
+  EXPECT_THROW(r.getProperty(propName)->setValue(""), std::runtime_error);
 }
 
 TEST(Resource, updateProperty_WithObserver) {
@@ -127,7 +127,7 @@ TEST(Resource, updateProperty_WithObserver) {
   Property p(observer, false);
   r.createProperty(propName, p);
 
-  r.updateProperty(propName, "new");
+  r.getProperty(propName)->setValue("new");
 
   EXPECT_EQ(1UL, observerCalled);
   EXPECT_EQ("", observedOldValue);
@@ -149,7 +149,7 @@ TEST(Resource, updateProperty_WithResourceObserver) {
   Property p(true, false);
   r.createProperty(propName, p);
 
-  r.updateProperty(propName, "new");
+  r.getProperty(propName)->setValue("new");
 
   EXPECT_EQ(1UL, observerCalled);
   EXPECT_EQ(propName, changedPropertyName);
@@ -171,15 +171,15 @@ TEST(Resource, subscribeProperty) {
     observedValue = notification.payload();
   });
 
-  r.subscribeProperty(propName, notifications);
+  r.getProperty(propName)->subscribe(notifications);
   EXPECT_EQ(0, observerCalled);
   EXPECT_EQ("", observedValue);
 
-  r.updateProperty(propName, "new");
+  r.getProperty(propName)->setValue("new");
   EXPECT_EQ(1, observerCalled);
   EXPECT_EQ("new", observedValue);
 
-  r.updateProperty(propName, "newer");
+  r.getProperty(propName)->setValue("newer");
   EXPECT_EQ(2, observerCalled);
   EXPECT_EQ("newer", observedValue);
 }
@@ -202,7 +202,7 @@ TEST(Resource, subscribeProperty_Twice) {
     observedValue1 = notification.payload();
   });
 
-  r.subscribeProperty(propName, notifications1);
+  r.getProperty(propName)->subscribe(notifications1);
 
   auto notifications2 = std::make_shared<CoAP::Notifications>();
   notifications2->subscribe([&observer2Called, &observedValue2](const CoAP::RestResponse& notification){
@@ -210,14 +210,14 @@ TEST(Resource, subscribeProperty_Twice) {
     observedValue2 = notification.payload();
   });
 
-  r.subscribeProperty(propName, notifications2);
+  r.getProperty(propName)->subscribe(notifications2);
 
   EXPECT_EQ(0, observer1Called);
   EXPECT_EQ(0, observer2Called);
   EXPECT_EQ("", observedValue1);
   EXPECT_EQ("", observedValue2);
 
-  r.updateProperty(propName, "new");
+  r.getProperty(propName)->setValue("new");
 
   EXPECT_EQ(1, observer1Called);
   EXPECT_EQ(1, observer2Called);
@@ -243,7 +243,7 @@ TEST(Resource, unsubscribeProperty) {
     observedValue1 = notification.payload();
   });
 
-  r.subscribeProperty(propName, notifications1);
+  r.getProperty(propName)->subscribe(notifications1);
 
   auto notifications2 = std::make_shared<CoAP::Notifications>();
   notifications2->subscribe([&observer2Called, &observedValue2](const CoAP::RestResponse& notification){
@@ -251,14 +251,14 @@ TEST(Resource, unsubscribeProperty) {
     observedValue2 = notification.payload();
   });
 
-  r.subscribeProperty(propName, notifications2);
+  r.getProperty(propName)->subscribe(notifications2);
 
   EXPECT_EQ(0, observer1Called);
   EXPECT_EQ(0, observer2Called);
   EXPECT_EQ("", observedValue1);
   EXPECT_EQ("", observedValue2);
 
-  r.updateProperty(propName, "new");
+  r.getProperty(propName)->setValue("new");
 
   EXPECT_EQ(1, observer1Called);
   EXPECT_EQ(1, observer2Called);
@@ -266,7 +266,7 @@ TEST(Resource, unsubscribeProperty) {
   EXPECT_EQ("new", observedValue2);
 
   notifications1.reset();
-  r.updateProperty(propName, "newer");
+  r.getProperty(propName)->setValue("newer");
 
   EXPECT_EQ(1, observer1Called);
   EXPECT_EQ(2, observer2Called);

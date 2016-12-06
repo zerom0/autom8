@@ -12,25 +12,19 @@
 #include <string>
 
 class Resource;
-using ResourceChangedCallback = std::function<void(Resource*, const std::string&)>;
+using InputValueUpdated = std::function<void(Resource*, const std::string&, const std::string&, const std::string&)>;
 
-void inputURIUpdated(Resource* resource, const std::string& propertyName, const std::string& oldURI, const std::string& newURI);
+void inputURIUpdated(Property* property, const std::string& oldURI, const std::string& newURI);
 
-void inputCountUpdated(Resource* resource, const std::string& propertyName, const std::string& oldValue, const std::string& newValue);
+void inputCountUpdated(Resource* resource,
+                       InputValueUpdated callback,
+                       const std::string& oldValue,
+                       const std::string& newValue);
 
 class Resource {
   std::map<std::string, Property> properties_;
-  ResourceChangedCallback onPropertyChanged_;
 
  public:
-  /**
-   * Creates a new resource with an optional observer that is being called when a
-   * property's value changed.
-   *
-   * @param onPropertyChanged  Optional observer
-   */
-  explicit Resource(ResourceChangedCallback onPropertyChanged) : onPropertyChanged_(onPropertyChanged) { }
-
   /**
    * Returns a list of the resources properties.
    *
@@ -46,7 +40,12 @@ class Resource {
    *
    * @throws runtime_error if a property with the given name already exists.
    */
-  void createProperty(const std::string name, Property property);
+  Property* createProperty(const std::string name, Property property);
+
+  template<typename ...TS> Property* createProperty(const std::string name, TS... ts) {
+    // TODO: How to std::forward varargs?
+    return createProperty(name, Property{ts...});
+  }
 
   /**
    * Removes a property from the resource.
@@ -59,8 +58,6 @@ class Resource {
 
   Property* getProperty(const std::string& name);
   const Property* getProperty(const std::string& name) const;
-
-  void setProperty(const std::string& name, const std::string& value);
 
   std::string to_json() const;
 };

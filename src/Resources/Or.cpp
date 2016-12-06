@@ -7,11 +7,19 @@
 #include "Resource.h"
 
 #include <coap/json.h>
+#include <coap/Logging.h>
 
-Resource* newOrResource(ResourceChangedCallback callback, const std::map<std::string, std::string>& values) {
-  auto r = new Resource(callback);
-  r->createProperty("value", Property{false, false});
-  r->createProperty("inputCount", Property{std::bind(inputCountUpdated, r, "inputCount", std::placeholders::_1, std::placeholders::_2), true});
+using std::placeholders::_1;
+using std::placeholders::_2;
+
+SETLOGLEVEL(LLDEBUG)
+
+Resource* newOrResource(InputValueUpdated callback, const std::map<std::string, std::string>& values) {
+  DLOG << "newOrResource()\n";
+
+  auto r = new Resource();
+  r->createProperty("value", false, false);
+  r->createProperty("inputCount", std::bind(inputCountUpdated, r, callback, std::placeholders::_1, std::placeholders::_2), true);
   r->getProperty("inputCount")->setValue(getValueOr(values, "inputCount", "2"));
 
   for (auto it = begin(values); it != end(values); ++it) r->getProperty(it->first)->setValue(it->second);
@@ -19,7 +27,9 @@ Resource* newOrResource(ResourceChangedCallback callback, const std::map<std::st
   return r;
 }
 
-void orResourceUpdated(Resource* resource, const std::string& propertyName) {
+void orResourceUpdated(Resource* resource, const std::string& propertyName, const std::string& oldValue, const std::string& newValue) {
+  DLOG << "orResourceUpdated(..., " << propertyName << ", " << oldValue << ", " << newValue << ")\n";
+
   if (propertyName.find("input") != 0) return;
 
   try {
@@ -34,10 +44,10 @@ void orResourceUpdated(Resource* resource, const std::string& propertyName) {
       value |= inputValue;
     }
 
-    resource->setProperty("value", CoAP::to_json(value));
+    resource->getProperty("value")->setValue(CoAP::to_json(value), true);
   }
   catch (std::runtime_error& e) {
-
+    ELOG << e.what() << '\n';
   }
 }
 

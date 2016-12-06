@@ -5,8 +5,19 @@
 #include "Resource.h"
 
 #include <coap/json.h>
+#include <coap/Logging.h>
 
-void inputCountUpdated(Resource* resource, const std::string& propertyName, const std::string& oldValue, const std::string& newValue) {
+using std::placeholders::_1;
+using std::placeholders::_2;
+
+SETLOGLEVEL(LLDEBUG)
+
+void inputCountUpdated(Resource* resource,
+                       InputValueUpdated callback,
+                       const std::string& oldValue,
+                       const std::string& newValue) {
+  DLOG << "inputCountUpdated(..., ..., " << oldValue << ", " << newValue << ")\n";
+
   auto oldCount = 0UL;
   try {
     oldCount = std::stoul(oldValue);
@@ -22,14 +33,17 @@ void inputCountUpdated(Resource* resource, const std::string& propertyName, cons
     }
   } else {
     for (auto index = oldCount; index < newCount; ++index) {
-      std::string uri = "input" + std::to_string(index) + "URI";
-      resource->createProperty(uri, Property{std::bind(inputURIUpdated, resource, uri, std::placeholders::_1, std::placeholders::_2), true});
-      resource->createProperty("input" + std::to_string(index) + "Value", Property{false, false});
+      std::string valuePropertyName = "input" + std::to_string(index) + "Value";
+      auto value = resource->createProperty(valuePropertyName, std::bind(callback, resource, valuePropertyName, _1, _2), false);
+      std::string uriPropertyName = "input" + std::to_string(index) + "URI";
+      resource->createProperty(uriPropertyName, std::bind(inputURIUpdated, value, _1, _2), true);
     }
   }
 }
 
 std::list<std::string> Resource::read() const {
+  DLOG << "Resource::read()\n";
+
   std::list<std::string> content;
 
   for (auto& p : properties_) {
@@ -39,34 +53,33 @@ std::list<std::string> Resource::read() const {
   return content;
 }
 
-void Resource::createProperty(const std::string name, Property property) {
+Property* Resource::createProperty(const std::string name, Property property) {
+  DLOG << "Resource::createProperty(" << name << ", ...)\n";
   if (getProperty(name)) throw std::runtime_error("Property exists already");
-  properties_.emplace(name, property);
+  auto result = properties_.emplace(name, property);
+  return &(result.first->second);
 }
 
 void Resource::deleteProperty(const std::string name) {
+  DLOG << "Resource::deleteProperty(" << name << ")\n";
   if (!getProperty(name)) throw std::runtime_error("Property does not exist");
   properties_.erase(name);
 }
 
 Property* Resource::getProperty(const std::string& name) {
+  DLOG << "Resource::getProperty(" << name << ")\n";
   auto it = properties_.find(name);
   return (it != end(properties_)) ? &(it->second) : nullptr;
 }
 
 const Property* Resource::getProperty(const std::string& name) const{
+  DLOG << "Resource::getProperty(" << name << ")\n";
   auto it = properties_.find(name);
   return (it != end(properties_)) ? &(it->second) : nullptr;
 }
 
-void Resource::setProperty(const std::string& name, const std::string& value) {
-  auto property = getProperty(name);
-  if (!property) throw std::runtime_error("Property " + name + " not found");
-  property->setValue(value, true);
-  if (onPropertyChanged_) onPropertyChanged_(this, name);
-}
-
 std::string Resource::to_json() const {
+  DLOG << "Resource::to_json()\n";
   std::string json;
   auto first = true;
 

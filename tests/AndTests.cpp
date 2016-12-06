@@ -11,28 +11,28 @@ TEST(And, bothFalse) {
   auto resource = andResourceFactory(std::map<std::string, std::string>{});
   resource->setProperty("input0Value", "false");
   resource->setProperty("input1Value", "false");
-  ASSERT_EQ("false", resource->readProperty("value"));
+  ASSERT_EQ("false", resource->getProperty("value")->getValue());
 }
 
 TEST(And, firstTrueSecondFalse) {
   auto resource = andResourceFactory(std::map<std::string, std::string>{});
   resource->setProperty("input0Value", "true");
   resource->setProperty("input1Value", "false");
-  ASSERT_EQ("false", resource->readProperty("value"));
+  ASSERT_EQ("false", resource->getProperty("value")->getValue());
 }
 
 TEST(And, firstFalseSecondTrue) {
   auto resource = andResourceFactory(std::map<std::string, std::string>{});
   resource->setProperty("input0Value", "false");
   resource->setProperty("input1Value", "true");
-  ASSERT_EQ("false", resource->readProperty("value"));
+  ASSERT_EQ("false", resource->getProperty("value")->getValue());
 }
 
 TEST(And, bothTrue) {
   auto resource = andResourceFactory(std::map<std::string, std::string>{});
   resource->setProperty("input0Value", "true");
   resource->setProperty("input1Value", "true");
-  ASSERT_EQ("true", resource->readProperty("value"));
+  ASSERT_EQ("true", resource->getProperty("value")->getValue());
 }
 
 TEST(And, threeInputs) {
@@ -40,7 +40,7 @@ TEST(And, threeInputs) {
   resource->setProperty("inputCount", "3");
   resource->setProperty("input0Value", "true");
   resource->setProperty("input1Value", "true");
-  ASSERT_EQ("false", resource->readProperty("value"));
+  ASSERT_EQ("false", resource->getProperty("value")->getValue());
   resource->setProperty("input2Value", "true");
-  ASSERT_EQ("true", resource->readProperty("value"));
+  ASSERT_EQ("true", resource->getProperty("value")->getValue());
 }
