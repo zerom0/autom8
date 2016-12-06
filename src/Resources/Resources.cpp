@@ -11,16 +11,7 @@
 #include <coap/RestResponse.h>
 #include <iostream>
 
-/**
- * Returns a RestResponse with the resources filtered by the path of the resource where the
- * function is called upon. The response has the content type application/link-format.
- *
- * @param factory     The resource factory to get the URIs to the element roots.
- * @param resources   The container with all existing resources.
- * @param path        The path on which the request was executed on.
- * @return            RestResponse with the filtered resources in application/link-format.
- */
-CoAP::RestResponse Resources::listResources(const Path& path) {
+CoAP::RestResponse Resources::listResources(const Path& path) const {
   std::string response;
 
   std::string startPath = path.toString();
@@ -56,12 +47,12 @@ CoAP::RestResponse Resources::createResource(const Path& path,
   return CoAP::RestResponse().withCode(CoAP::Code::Created);
 }
 
-CoAP::RestResponse Resources::readResource(const Path& path) {
-  auto it = resources_.find(path.toString());
-  if (it == end(resources_)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
+CoAP::RestResponse Resources::readResource(const Path& path) const {
+  auto resource = getResource(path);
+  if (!resource) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
 
   std::string payload;
-  for (auto& property : it->second->read()) {
+  for (auto& property : resource->read()) {
     payload += "<" + path.toString() + "/" + property + ">,";
   }
 
@@ -81,35 +72,35 @@ CoAP::RestResponse Resources::deleteResource(const Path& path) {
       .withCode(CoAP::Code::Deleted);
 }
 
-CoAP::RestResponse Resources::readProperty(const Path& p) {
-  auto it = resources_.find("/" + p.getPart(0) + "/" + p.getPart(1));
-  if (it == end(resources_)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
+CoAP::RestResponse Resources::readProperty(const Path& path) const {
+  auto property = getProperty(path);
+  if (!property) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
 
   return CoAP::RestResponse()
       .withCode(CoAP::Code::Content)
-      .withPayload(it->second->readProperty(p.getPart(2)));
+      .withPayload(property->getValue());
 }
 
-CoAP::RestResponse Resources::updateProperty(const Path& p, const std::string& value) {
-  auto it = resources_.find("/" + p.getPart(0) + "/" + p.getPart(1));
-  if (it == end(resources_)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
+CoAP::RestResponse Resources::updateProperty(const Path& path, const std::string& value) {
+  auto property = getProperty(path);
+  if (!property) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
 
-  it->second->updateProperty(p.getPart(2), value);
+  property->setValue(value);
 
   return CoAP::RestResponse()
       .withCode(CoAP::Code::Changed);
 }
 
 CoAP::RestResponse
-Resources::observeProperty(const Path& p, std::weak_ptr<CoAP::Notifications> observer) {
-  auto it = resources_.find("/" + p.getPart(0) + "/" + p.getPart(1));
-  if (it == end(resources_)) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
+Resources::observeProperty(const Path& path, std::weak_ptr<CoAP::Notifications> observer) {
+  auto property = getProperty(path);
+  if (!property) return CoAP::RestResponse().withCode(CoAP::Code::NotFound);
 
-  it->second->subscribeProperty(p.getPart(2), observer);
+  property->subscribe(observer);
 
   return CoAP::RestResponse()
       .withCode(CoAP::Code::Content)
-      .withPayload(it->second->readProperty(p.getPart(2)));
+      .withPayload(property->getValue());
 }
 
 std::string Resources::to_json() {
@@ -133,4 +124,25 @@ void Resources::createResourcesFromJSON(const std::string& data) {
     auto path = Path("/" + p.getPart(0));
     createResource(path, p.getPart(1), resIt->second);
   }
+}
+Resource* Resources::getResource(const Path& path) {
+  auto it = resources_.find("/" + path.getPart(0) + "/" + path.getPart(1));
+  return (it != end(resources_)) ? it->second.get() : nullptr;
+}
+
+const Resource* Resources::getResource(const Path& path) const {
+  auto it = resources_.find("/" + path.getPart(0) + "/" + path.getPart(1));
+  return (it != end(resources_)) ? it->second.get() : nullptr;
+}
+
+Property* Resources::getProperty(const Path& path) {
+  auto resource = getResource(path);
+  auto property = resource ? resource->getProperty(path.getPart(2)) : nullptr;
+  return property;
+}
+
+const Property* Resources::getProperty(const Path& path) const {
+  auto resource = getResource(path);
+  auto property = resource ? resource->getProperty(path.getPart(2)) : nullptr;
+  return property;
 }

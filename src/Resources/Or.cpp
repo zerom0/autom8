@@ -12,9 +12,9 @@ Resource* newOrResource(ResourceChangedCallback callback, const std::map<std::st
   auto r = new Resource(callback);
   r->createProperty("value", Property{false, false});
   r->createProperty("inputCount", Property{std::bind(inputCountUpdated, r, "inputCount", std::placeholders::_1, std::placeholders::_2), true});
-  r->updateProperty("inputCount", getValueOr(values, "inputCount", "2"));
+  r->getProperty("inputCount")->setValue(getValueOr(values, "inputCount", "2"));
 
-  for (auto it = begin(values); it != end(values); ++it) r->updateProperty(it->first, it->second);
+  for (auto it = begin(values); it != end(values); ++it) r->getProperty(it->first)->setValue(it->second);
 
   return r;
 }
@@ -24,13 +24,13 @@ void orResourceUpdated(Resource* resource, const std::string& propertyName) {
 
   try {
     unsigned count;
-    CoAP::from_json(resource->readProperty("inputCount"), count);
+    CoAP::from_json(resource->getProperty("inputCount")->getValue(), count);
 
     auto value = false;
 
     for (unsigned i = 0; i < count; ++i) {
       bool inputValue;
-      CoAP::from_json(resource->readProperty("input" + std::to_string(i) + "Value"), inputValue);
+      CoAP::from_json(resource->getProperty("input" + std::to_string(i) + "Value")->getValue(), inputValue);
       value |= inputValue;
     }
 

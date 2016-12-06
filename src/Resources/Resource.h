@@ -36,7 +36,7 @@ class Resource {
    *
    * @return List of properties.
    */
-  std::list<std::string> read();
+  std::list<std::string> read() const;
 
   /**
    * Adds a property to the resource.
@@ -58,37 +58,7 @@ class Resource {
   void deleteProperty(const std::string name);
 
   Property* getProperty(const std::string& name);
-
-  /**
-   * Returns the value of a property.
-   *
-   * @param name  Name of the property
-   * @return  Value of the property
-   *
-   * @throws runtime_error if the property does not exist.
-   */
-  std::string readProperty(const std::string& name);
-
-  /**
-   * Changes the value or a property.
-   *
-   * @param name   Name of the property
-   * @param value  New value for the property
-   *
-   * @throws runtime_error if the property does not exist.
-   */
-  void updateProperty(const std::string& name, const std::string& value);
-
-  /**
-   * Creates a subscription for future changes of a property.
-   *
-   * @param name           Name of the property
-   * @param notifications  Future notifications of property value changes
-   * @return      A shared object with future value changed notifications
-   *
-   * @throws runtime_error if the property does not exist.
-   */
-  void subscribeProperty(const std::string& name, std::weak_ptr<CoAP::Notifications> notifications);
+  const Property* getProperty(const std::string& name) const;
 
   void setProperty(const std::string& name, const std::string& value);
 

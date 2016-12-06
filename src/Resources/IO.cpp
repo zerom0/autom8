@@ -12,7 +12,7 @@ Resource* newIOResource(ResourceChangedCallback callback, const std::map<std::st
   r->createProperty("inputURI", Property{std::bind(inputURIUpdated, r, "inputURI", std::placeholders::_1, std::placeholders::_2), true});
   r->createProperty("inputValue", Property{false, false});
 
-  for (auto it = begin(values); it != end(values); ++it) r->updateProperty(it->first, it->second);
+  for (auto it = begin(values); it != end(values); ++it) r->getProperty(it->first)->setValue(it->second);
 
   return r;
 }
@@ -20,7 +20,7 @@ Resource* newIOResource(ResourceChangedCallback callback, const std::map<std::st
 void ioResourceUpdated(Resource* resource, const std::string& propertyName) {
   if (propertyName != "inputValue") return;
 
-  resource->setProperty("value", resource->readProperty("inputValue"));
+  resource->setProperty("value", resource->getProperty("inputValue")->getValue());
 }
 
 std::unique_ptr<Resource> ioResourceFactory(const std::map<std::string, std::string>& values) {

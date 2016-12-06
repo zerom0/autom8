@@ -22,11 +22,9 @@ class Property {
   explicit Property(std::function<void(const std::string&, const std::string&)> onUpdate, bool persistent)
       : writeable_(true), persistent_(persistent), onUpdate_(onUpdate) { }
 
-  std::string read() const { return value_; }
+  std::string getValue() const { return value_; }
 
-  void update(const std::string& value);
-
-  void set(const std::string& value);
+  void setValue(const std::string& value, bool force = false);
 
   // TODO: Replace usage by function below
   void subscribe(std::weak_ptr<CoAP::Notifications> observer) {

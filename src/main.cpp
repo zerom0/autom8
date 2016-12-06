@@ -47,6 +47,7 @@ void inputURIUpdated(Resource* resource, const string& propertyName, const strin
   string valuePropertyName = propertyName.substr(0, propertyName.length() - 3) + "Value";
 
   // TODO: Unregister from old URI
+  // TODO: use property instead of resource if possible
   activeNotifications[newURI]->subscribe([resource, valuePropertyName](const CoAP::RestResponse& response) {
     resource->setProperty(valuePropertyName, response.payload());
   });

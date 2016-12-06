@@ -29,7 +29,7 @@ void inputCountUpdated(Resource* resource, const std::string& propertyName, cons
   }
 }
 
-std::list<std::string> Resource::read() {
+std::list<std::string> Resource::read() const {
   std::list<std::string> content;
 
   for (auto& p : properties_) {
@@ -37,25 +37,6 @@ std::list<std::string> Resource::read() {
   }
 
   return content;
-}
-
-std::string Resource::readProperty(const std::string& name) {
-  auto property = getProperty(name);
-  if (!property) throw std::runtime_error("Property not found");
-  return property->read();
-}
-
-void Resource::updateProperty(const std::string& name, const std::string& value) {
-  auto property = getProperty(name);
-  if (!property) throw std::runtime_error("Property not found");
-  property->update(value);
-  if (onPropertyChanged_) onPropertyChanged_(this, name);
-}
-
-void Resource::subscribeProperty(const std::string& name, std::weak_ptr<CoAP::Notifications> notifications) {
-  auto property = getProperty(name);
-  if (!property) throw std::runtime_error("Property not found");
-  property->subscribe(notifications);
 }
 
 void Resource::createProperty(const std::string name, Property property) {
@@ -73,10 +54,15 @@ Property* Resource::getProperty(const std::string& name) {
   return (it != end(properties_)) ? &(it->second) : nullptr;
 }
 
+const Property* Resource::getProperty(const std::string& name) const{
+  auto it = properties_.find(name);
+  return (it != end(properties_)) ? &(it->second) : nullptr;
+}
+
 void Resource::setProperty(const std::string& name, const std::string& value) {
   auto property = getProperty(name);
   if (!property) throw std::runtime_error("Property " + name + " not found");
-  property->set(value);
+  property->setValue(value, true);
   if (onPropertyChanged_) onPropertyChanged_(this, name);
 }
 
@@ -88,7 +74,7 @@ std::string Resource::to_json() const {
     if (it.second.isPersistent()) {
       if (first) first = false;
       else json += ",";
-      json += CoAP::to_json(it.first) + ":" + CoAP::to_json(it.second.read());
+      json += CoAP::to_json(it.first) + ":" + CoAP::to_json(it.second.getValue());
     }
   }
   return "{" + json + "}";

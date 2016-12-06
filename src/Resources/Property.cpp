@@ -9,13 +9,9 @@
 
 SETLOGLEVEL(LLDEBUG)
 
-void Property::update(const std::string& value) {
-  if (not isWriteable()) throw std::runtime_error("Property is read only");
-  
-  set(value);
-}
+void Property::setValue(const std::string& value, bool force) {
+  if (not force and not isWriteable()) throw std::runtime_error("Property is read only");
 
-void Property::set(const std::string& value) {
   auto oldValue = value_;
   value_ = value;
   if (onUpdate_) onUpdate_(oldValue, value);
