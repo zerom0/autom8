@@ -65,6 +65,15 @@ string fromPersistence =
         "\"/not/alarm\":{\"inputURI\":\"coap://127.0.0.1:5683/and/all_closed/value\"}"
     "}";
 
+void onResourcesModified(const Resources& resources) {
+  static std::string persistence;
+  string temp = resources.to_json();
+  if (temp != persistence) {
+    persistence = temp;
+    std::__1::cout << persistence << std::__1::endl;
+  }
+}
+
 int main() {
   messaging = CoAP::newMessaging();
 
@@ -76,7 +85,7 @@ int main() {
       { "out", ioResourceFactory },
   };
 
-  Resources resources(resourceFactory);
+  Resources resources(resourceFactory, onResourcesModified);
   resources.createResourcesFromJSON(fromPersistence);
 
   const std::map<std::string, std::string> noValues;
@@ -95,18 +104,7 @@ int main() {
           .onPut(bind(&Resources::updateProperty, &resources, _1, _2))
           .onObserve(bind(&Resources::observeProperty, &resources, _1, _2));
 
-  std::string persistence;
-
-  int i = 0;
   for(;;) {
     messaging->loopOnce();
-    i++;
-    if (i%100) {
-      std::string temp = resources.to_json();
-      if (temp != persistence) {
-        persistence = temp;
-        std::cout << persistence << std::endl;
-      }
-    }
   }
 }

@@ -44,6 +44,8 @@ CoAP::RestResponse Resources::createResource(const Path& path,
   std::string uri = "/" + resourceType + "/" + name;
   resources_[uri] = it->second(values);
 
+  resourcesModified_(*this);
+
   return CoAP::RestResponse().withCode(CoAP::Code::Created);
 }
 
@@ -68,6 +70,8 @@ CoAP::RestResponse Resources::deleteResource(const Path& path) {
 
   resources_.erase(it);
 
+  resourcesModified_(*this);
+
   return CoAP::RestResponse()
       .withCode(CoAP::Code::Deleted);
 }
@@ -87,6 +91,8 @@ CoAP::RestResponse Resources::updateProperty(const Path& path, const std::string
 
   property->setValue(value);
 
+  resourcesModified_(*this);
+
   return CoAP::RestResponse()
       .withCode(CoAP::Code::Changed);
 }
@@ -103,7 +109,7 @@ Resources::observeProperty(const Path& path, std::weak_ptr<CoAP::Notifications> 
       .withPayload(property->getValue());
 }
 
-std::string Resources::to_json() {
+std::string Resources::to_json() const {
   std::string json;
   auto first = true;
   for (auto& it : resources_) {

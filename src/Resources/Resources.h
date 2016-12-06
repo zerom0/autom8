@@ -10,15 +10,18 @@
 #include <map>
 
 class Path;
+class Resources;
 
 using ResourceFactory = std::map<std::string, std::function<std::unique_ptr<Resource>(std::map<std::string, std::string>)>>;
 
+using ModificationCallback = std::function<void(const Resources&)>;
 
 class Resources {
   using ResourceMap = std::map<std::string, std::unique_ptr<Resource>>;
 
   ResourceMap resources_;
   ResourceFactory factory_;
+  ModificationCallback resourcesModified_;
 
  public:
   /**
@@ -26,7 +29,10 @@ class Resources {
    *
    * @param factory  Factory to create new resources
    */
-  explicit Resources(ResourceFactory factory) : factory_(factory) { }
+  Resources(ResourceFactory factory, ModificationCallback callback)
+      : factory_(factory)
+      , resourcesModified_(callback)
+  { }
 
   /**
    * Returns a RestResponse with the resources filtered by the path of the resource where the
@@ -93,7 +99,7 @@ class Resources {
    */
   CoAP::RestResponse observeProperty(const Path& path, std::weak_ptr<CoAP::Notifications> observer);
 
-  std::string to_json();
+  std::string to_json() const;
 
   void createResourcesFromJSON(const std::string& data);
 
