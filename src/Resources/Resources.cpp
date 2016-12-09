@@ -4,8 +4,6 @@
 
 #include "Resources.h"
 
-#include "../json_ext.h"
-
 #include <coap/json.h>
 #include <coap/Path.h>
 #include <coap/RestResponse.h>
