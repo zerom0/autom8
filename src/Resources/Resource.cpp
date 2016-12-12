@@ -19,11 +19,14 @@ void inputCountUpdated(Resource* resource,
   TLOG << "inputCountUpdated(..., ..., " << oldValue << ", " << newValue << ")\n";
 
   auto oldCount = 0UL;
-  try {
-    oldCount = std::stoul(oldValue);
-  } catch (std::exception& e) {
-    // The property might not be initialized the first time update is called
+  if (!oldValue.empty()) {
+    try {
+      oldCount = std::stoul(oldValue);
+    } catch (std::exception& e) {
+      // The property might not be initialized the first time update is called
+    }
   }
+
   auto newCount = std::stoul(newValue);
 
   if (newCount < oldCount) {
