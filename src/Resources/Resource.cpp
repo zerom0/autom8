@@ -34,9 +34,9 @@ void inputCountUpdated(Resource* resource,
   } else {
     for (auto index = oldCount; index < newCount; ++index) {
       std::string valuePropertyName = "input" + std::to_string(index) + "Value";
-      auto value = resource->createProperty(valuePropertyName, std::bind(callback, resource, valuePropertyName, _1, _2), false);
+      auto value = resource->createProperty(valuePropertyName, std::bind(callback, resource, valuePropertyName, _1, _2), Property::Volatile);
       std::string uriPropertyName = "input" + std::to_string(index) + "URI";
-      resource->createProperty(uriPropertyName, std::bind(inputURIUpdated, value, _1, _2), true);
+      resource->createProperty(uriPropertyName, std::bind(inputURIUpdated, value, _1, _2), Property::Persistent);
     }
   }
 }

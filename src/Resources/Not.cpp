@@ -18,10 +18,10 @@ Resource* newNotResource(InputValueUpdated callback, const std::map<std::string,
   TLOG << "newNotResource()\n";
 
   auto r = new Resource();
-  r->createProperty("value", false, false);
+  r->createProperty("value", Property::ReadOnly, Property::Volatile);
 
-  auto value = r->createProperty("inputValue", std::bind(callback, r, "inputValue", _1, _2), false);
-  r->createProperty("inputURI", std::bind(inputURIUpdated, value, _1, _2), true);
+  auto value = r->createProperty("inputValue", std::bind(callback, r, "inputValue", _1, _2), Property::Volatile);
+  r->createProperty("inputURI", std::bind(inputURIUpdated, value, _1, _2), Property::Persistent);
 
   for (auto it = begin(values); it != end(values); ++it) r->getProperty(it->first)->setValue(it->second);
 

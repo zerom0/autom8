@@ -29,7 +29,7 @@ TEST(Resource, getProperty) {
   Resource r;
   auto propName = std::string("aProperty");
 
-  Property p(false, false);
+  Property p(Property::ReadOnly, Property::Volatile);
   r.createProperty(propName, p);
 
   EXPECT_NE(nullptr, r.getProperty(propName));
@@ -39,7 +39,7 @@ TEST(Resource, createProperty_read) {
   Resource r;
   auto propName = std::string("aProperty");
 
-  Property p(false, false);
+  Property p(Property::ReadOnly, Property::Volatile);
   r.createProperty(propName, p);
 
   ASSERT_EQ(1UL, r.read().size());
@@ -50,7 +50,7 @@ TEST(Resource, createProperty_CreateTwiceThrows) {
   Resource r;
   auto propName = std::string("aProperty");
 
-  Property p(false, false);
+  Property p(Property::ReadOnly, Property::Volatile);
   r.createProperty(propName, p);
   EXPECT_THROW(r.createProperty(propName, p), std::runtime_error);
 }
@@ -59,7 +59,7 @@ TEST(Resource, deleteProperty) {
   Resource r;
   auto propName = std::string("aProperty");
 
-  Property p(false, false);
+  Property p(Property::ReadOnly, Property::Volatile);
   r.createProperty(propName, p);
 
   ASSERT_EQ(1UL, r.read().size());
@@ -80,7 +80,7 @@ TEST(Resource, updateProperty) {
   Resource r;
   auto propName = std::string("aProperty");
 
-  Property p(true, false);
+  Property p(Property::ReadWrite, Property::Volatile);
   r.createProperty(propName, p);
 
   EXPECT_EQ("", r.getProperty(propName)->getValue());
@@ -94,7 +94,7 @@ TEST(Resource, updateProperty_ReadOnlyCannotBeUpdated) {
   Resource r;
   auto propName = std::string("aProperty");
 
-  Property p(false, false); // isWriteable = false
+  Property p(Property::ReadOnly, Property::Volatile);
   r.createProperty(propName, p);
 
   EXPECT_EQ("", r.getProperty(propName)->getValue());
@@ -118,7 +118,7 @@ TEST(Resource, updateProperty_WithObserver) {
     ++observerCalled;
   };
 
-  Property p(observer, false);
+  Property p(observer, Property::Volatile);
   r.createProperty(propName, p);
 
   r.getProperty(propName)->setValue("new");
@@ -132,7 +132,7 @@ TEST(Resource, subscribeProperty) {
   Resource r;
   auto propName = std::string("aProperty");
 
-  Property p(true, false);
+  Property p(Property::ReadWrite, Property::Volatile);
   r.createProperty(propName, p);
 
   auto observerCalled = 0UL;
@@ -161,7 +161,7 @@ TEST(Resource, subscribeProperty_Twice) {
   Resource r;
   auto propName = std::string("aProperty");
 
-  Property p(true, false);
+  Property p(Property::ReadWrite, Property::Volatile);
   r.createProperty(propName, p);
 
   auto observer1Called = 0UL;
@@ -202,7 +202,7 @@ TEST(Resource, unsubscribeProperty) {
   Resource r;
   auto propName = std::string("aProperty");
 
-  Property p(true, false);
+  Property p(Property::ReadWrite, Property::Volatile);
   r.createProperty(propName, p);
 
   auto observer1Called = 0UL;
