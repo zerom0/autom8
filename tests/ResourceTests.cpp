@@ -13,30 +13,31 @@ void inputURIUpdated(Property* property, const std::string& oldValue, const std:
 }
 
 TEST(Resource, read_EmptyResource) {
-  Resource r(nullptr);
+  Resource r;
 
   EXPECT_EQ(0, r.read().size());
 }
 
-TEST(Resource, readProperty) {
-  Resource r(nullptr);
+TEST(Resource, readProperty_NonExistingPropertyReturnsNullptr) {
+  Resource r;
   auto propName = std::string("aProperty");
 
-  EXPECT_THROW(r.getProperty(propName), std::runtime_error);
+  EXPECT_EQ(nullptr, r.getProperty(propName));
 }
 
-TEST(Resource, readProperty_NonExistingPropertyThrows) {
-  Resource r(nullptr);
+TEST(Resource, getProperty) {
+  Resource r;
   auto propName = std::string("aProperty");
 
-  EXPECT_THROW(r.getProperty(propName)->getValue(), std::runtime_error);
+  Property p(false, false);
+  r.createProperty(propName, p);
+
+  EXPECT_NE(nullptr, r.getProperty(propName));
 }
 
 TEST(Resource, createProperty_read) {
-  Resource r(nullptr);
+  Resource r;
   auto propName = std::string("aProperty");
-
-  EXPECT_THROW(r.getProperty(propName)->getValue(), std::runtime_error);
 
   Property p(false, false);
   r.createProperty(propName, p);
@@ -46,7 +47,7 @@ TEST(Resource, createProperty_read) {
 }
 
 TEST(Resource, createProperty_CreateTwiceThrows) {
-  Resource r(nullptr);
+  Resource r;
   auto propName = std::string("aProperty");
 
   Property p(false, false);
@@ -55,7 +56,7 @@ TEST(Resource, createProperty_CreateTwiceThrows) {
 }
 
 TEST(Resource, deleteProperty) {
-  Resource r(nullptr);
+  Resource r;
   auto propName = std::string("aProperty");
 
   Property p(false, false);
@@ -69,14 +70,14 @@ TEST(Resource, deleteProperty) {
 }
 
 TEST(Resource, deleteProperty_DeleteUnknownThrows) {
-  Resource r(nullptr);
+  Resource r;
   auto propName = std::string("aProperty");
 
   EXPECT_THROW(r.deleteProperty(propName), std::runtime_error);
 }
 
 TEST(Resource, updateProperty) {
-  Resource r(nullptr);
+  Resource r;
   auto propName = std::string("aProperty");
 
   Property p(true, false);
@@ -90,7 +91,7 @@ TEST(Resource, updateProperty) {
 }
 
 TEST(Resource, updateProperty_ReadOnlyCannotBeUpdated) {
-  Resource r(nullptr);
+  Resource r;
   auto propName = std::string("aProperty");
 
   Property p(false, false); // isWriteable = false
@@ -103,15 +104,8 @@ TEST(Resource, updateProperty_ReadOnlyCannotBeUpdated) {
   EXPECT_EQ("", r.getProperty(propName)->getValue());
 }
 
-TEST(Resource, updateProperty_UpdateUnknownThrows) {
-  Resource r(nullptr);
-  auto propName = std::string("aProperty");
-
-  EXPECT_THROW(r.getProperty(propName)->setValue(""), std::runtime_error);
-}
-
 TEST(Resource, updateProperty_WithObserver) {
-  Resource r(nullptr);
+  Resource r;
   auto propName = std::string("aProperty");
 
   std::string observedOldValue("not set");
@@ -134,29 +128,8 @@ TEST(Resource, updateProperty_WithObserver) {
   EXPECT_EQ("new", observedNewValue);
 }
 
-TEST(Resource, updateProperty_WithResourceObserver) {
-  std::string changedPropertyName("not set");
-  auto observerCalled = 0UL;
-
-  auto observer = [&changedPropertyName, &observerCalled](Resource* resource, const std::string& name){
-    changedPropertyName = name;
-    ++observerCalled;
-  };
-
-  Resource r(observer);
-  auto propName = std::string("aProperty");
-
-  Property p(true, false);
-  r.createProperty(propName, p);
-
-  r.getProperty(propName)->setValue("new");
-
-  EXPECT_EQ(1UL, observerCalled);
-  EXPECT_EQ(propName, changedPropertyName);
-}
-
 TEST(Resource, subscribeProperty) {
-  Resource r(nullptr);
+  Resource r;
   auto propName = std::string("aProperty");
 
   Property p(true, false);
@@ -185,7 +158,7 @@ TEST(Resource, subscribeProperty) {
 }
 
 TEST(Resource, subscribeProperty_Twice) {
-  Resource r(nullptr);
+  Resource r;
   auto propName = std::string("aProperty");
 
   Property p(true, false);
@@ -226,7 +199,7 @@ TEST(Resource, subscribeProperty_Twice) {
 }
 
 TEST(Resource, unsubscribeProperty) {
-  Resource r(nullptr);
+  Resource r;
   auto propName = std::string("aProperty");
 
   Property p(true, false);

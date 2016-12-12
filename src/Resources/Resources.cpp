@@ -113,7 +113,7 @@ std::string Resources::to_json() const {
   for (auto& it : resources_) {
     if (first) first = false;
     else json += ",";
-    // TODO: CoAP::to_json(key, value) plaziert "" um den value, auch wenn dieser schon json ist.
+
     json += CoAP::to_json(it.first) + ":" + it.second->to_json();
   }
   return "{" + json + "}";
