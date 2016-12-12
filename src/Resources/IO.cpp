@@ -13,7 +13,7 @@ using std::placeholders::_2;
 SETLOGLEVEL(LLDEBUG)
 
 Resource* newIOResource(InputValueUpdated callback, const std::map<std::string, std::string>& values) {
-  DLOG << "newIOResource()\n";
+  TLOG << "newIOResource()\n";
 
   auto r = new Resource();
   r->createProperty("value", true, false);

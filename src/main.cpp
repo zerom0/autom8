@@ -10,10 +10,13 @@
 
 #include <coap/CoAP.h>
 #include <coap/json.h>
+#include <coap/Logging.h>
 #include <coap/URI.h>
 
 #include <functional>
 #include <iostream>
+
+SETLOGLEVEL(LLDEBUG)
 
 using std::bind;
 using std::map;
@@ -36,18 +39,30 @@ map<string, shared_ptr<CoAP::Notifications>> activeNotifications;
  * @param newURI    URI of the new observed resource
  */
 void inputURIUpdated(Property* property, const string& oldURI, const string& newURI) {
-  // TODO: URI::fromString cannot handle empty strings -> Bang
-  auto theUri = newURI.empty() ? URI{} : URI::fromString(newURI);
+  auto theUri = URI::fromString(newURI);
 
-  if (newURI.empty()) return;
+  // Register on new URI
+  if (theUri.isValid()) {
+    auto client = messaging->getClientFor(theUri.getServer().c_str(), theUri.getPort());
 
-  auto client = messaging->getClientFor(theUri.getServer().c_str(), theUri.getPort());
-  activeNotifications[newURI] = client.OBSERVE(theUri.getPath());
+    activeNotifications[newURI] = client.OBSERVE(theUri.getPath());
 
-  // TODO: Unregister from old URI
-  activeNotifications[newURI]->subscribe([property](const CoAP::RestResponse& response) {
-    property->setValue(response.payload(), true);
-  });
+    activeNotifications[newURI]->subscribe([property](const CoAP::RestResponse& response) {
+      property->setValue(response.payload(), true);
+    });
+
+    DLOG << "Subscribed on " << newURI << "\n";
+  }
+
+  // Unregister from old URI
+  if (!oldURI.empty()) {
+    auto it = activeNotifications.find(oldURI);
+    if (it != end(activeNotifications)) {
+      it->second.reset();
+      activeNotifications.erase(it);
+      DLOG << "Unsubscribed from " << oldURI << "\n";
+    }
+  }
 }
 
 string fromPersistence =

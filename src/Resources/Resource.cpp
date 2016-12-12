@@ -16,7 +16,7 @@ void inputCountUpdated(Resource* resource,
                        InputValueUpdated callback,
                        const std::string& oldValue,
                        const std::string& newValue) {
-  DLOG << "inputCountUpdated(..., ..., " << oldValue << ", " << newValue << ")\n";
+  TLOG << "inputCountUpdated(..., ..., " << oldValue << ", " << newValue << ")\n";
 
   auto oldCount = 0UL;
   try {
@@ -42,7 +42,7 @@ void inputCountUpdated(Resource* resource,
 }
 
 std::list<std::string> Resource::read() const {
-  DLOG << "Resource::read()\n";
+  TLOG << "Resource::read()\n";
 
   std::list<std::string> content;
 
@@ -54,32 +54,32 @@ std::list<std::string> Resource::read() const {
 }
 
 Property* Resource::createProperty(const std::string name, Property property) {
-  DLOG << "Resource::createProperty(" << name << ", ...)\n";
+  TLOG << "Resource::createProperty(" << name << ", ...)\n";
   if (getProperty(name)) throw std::runtime_error("Property exists already");
   auto result = properties_.emplace(name, property);
   return &(result.first->second);
 }
 
 void Resource::deleteProperty(const std::string name) {
-  DLOG << "Resource::deleteProperty(" << name << ")\n";
+  TLOG << "Resource::deleteProperty(" << name << ")\n";
   if (!getProperty(name)) throw std::runtime_error("Property does not exist");
   properties_.erase(name);
 }
 
 Property* Resource::getProperty(const std::string& name) {
-  DLOG << "Resource::getProperty(" << name << ")\n";
+  TLOG << "Resource::getProperty(" << name << ")\n";
   auto it = properties_.find(name);
   return (it != end(properties_)) ? &(it->second) : nullptr;
 }
 
 const Property* Resource::getProperty(const std::string& name) const{
-  DLOG << "Resource::getProperty(" << name << ")\n";
+  TLOG << "Resource::getProperty(" << name << ")\n";
   auto it = properties_.find(name);
   return (it != end(properties_)) ? &(it->second) : nullptr;
 }
 
 std::string Resource::to_json() const {
-  DLOG << "Resource::to_json()\n";
+  TLOG << "Resource::to_json()\n";
   std::string json;
   auto first = true;
 

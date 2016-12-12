@@ -10,22 +10,31 @@
 SETLOGLEVEL(LLDEBUG)
 
 std::string Property::getValue() const {
-  DLOG << "Property::getValue() -> " << value_ << "\n";
+  TLOG << "Property::getValue() -> " << value_ << "\n";
   return value_;
 }
 
 void Property::setValue(const std::string& value, bool force) {
-  DLOG << "Property::setValue(" << value << ", " << (force ? "true":"false") << ")\n";
+  TLOG << "Property::setValue(" << value << ", " << (force ? "true":"false") << ")\n";
 
   if (not force and not isWriteable()) throw std::runtime_error("Property is read only");
+
+  if (value == value_) return;
 
   auto oldValue = value_;
   value_ = value;
   if (onUpdate_) onUpdate_(oldValue, value);
-  for (auto& observer : observer_) {
-    auto o = observer.lock();
-    DLOG << (o ? "in": "") << "active observer notified\n";
-    if (o) o->onNext(CoAP::RestResponse().withCode(CoAP::Code::Content).withPayload(value));
+  for (auto it = begin(observer_); it != end(observer_);) {
+    auto o = it->lock();
+    if (o) {
+      DLOG << "Observer notified\n";
+      o->onNext(CoAP::RestResponse().withCode(CoAP::Code::Content).withPayload(value));
+      ++it;
+    }
+    else {
+      DLOG << "Inactive observer removed\n";
+      observer_.erase(it++);
+    }
   }
 }
 
