@@ -13,6 +13,7 @@
 #include <coap/Logging.h>
 #include <coap/URI.h>
 
+#include <fstream>
 #include <functional>
 #include <iostream>
 
@@ -82,7 +83,8 @@ void onResourcesModified(const Resources& resources) {
   string temp = resources.to_json();
   if (temp != persistence) {
     persistence = temp;
-    std::__1::cout << persistence << std::__1::endl;
+    auto file = std::ofstream("autom8.dat");
+    file << persistence;
   }
 }
 
@@ -98,6 +100,10 @@ int main() {
   };
 
   Resources resources(resourceFactory, onResourcesModified);
+  auto file = std::ifstream("autom8.dat");
+  if (file.is_open()) {
+    getline(file, fromPersistence);
+  }
   resources.createResourcesFromJSON(fromPersistence);
 
   const std::map<std::string, std::string> noValues;
