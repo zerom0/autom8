@@ -29,8 +29,6 @@ using std::string;
 
 shared_ptr<CoAP::IMessaging> messaging;
 
-map<string, shared_ptr<CoAP::Notifications>> activeNotifications;
-
 /**
  * Handler for URI properties that subscribes to notifications for the resource specified by newURI
  * and updates the cached values with the values from the received notifications.
@@ -42,27 +40,13 @@ map<string, shared_ptr<CoAP::Notifications>> activeNotifications;
 void inputURIUpdated(Property* property, const string& oldURI, const string& newURI) {
   auto theUri = URI::fromString(newURI);
 
-  // Register on new URI
   if (theUri.isValid()) {
     auto client = messaging->getClientFor(theUri.getServer().c_str(), theUri.getPort());
-
-    activeNotifications[newURI] = client.OBSERVE(theUri.getPath());
-
-    activeNotifications[newURI]->subscribe([property](const CoAP::RestResponse& response) {
-      property->setValue(response.payload(), true);
-    });
-
+    property->setNotifications(client.OBSERVE(theUri.getPath()));
     DLOG << "Subscribed on " << newURI << "\n";
   }
-
-  // Unregister from old URI
-  if (!oldURI.empty()) {
-    auto it = activeNotifications.find(oldURI);
-    if (it != end(activeNotifications)) {
-      it->second.reset();
-      activeNotifications.erase(it);
-      DLOG << "Unsubscribed from " << oldURI << "\n";
-    }
+  else {
+    property->clearNotifications();
   }
 }
 

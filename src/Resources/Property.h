@@ -24,10 +24,20 @@ class Property {
 
  private:
   const Access access_{ReadWrite};
+
   const Livetime livetime_{Volatile};
+
+  /// The property's current value
   std::string value_;
+
+  /// Observers to be notified when the property's value changes.
   std::list<std::weak_ptr<CoAP::Notifications>> observer_;
+
+  /// Handler to be called when the property's value changes.
   std::function<void(const std::string&, const std::string&)> onUpdate_;
+
+  /// When the property is based on notifications it manages the livetime of its notifications.
+  std::shared_ptr<CoAP::Notifications> notifications_;
 
  public:
   Property(Access access, Livetime livetime) : access_(access), livetime_(livetime) { }
@@ -50,4 +60,8 @@ class Property {
   bool isWriteable() const { return access_ == ReadWrite; }
 
   bool isPersistent() const { return livetime_ == Persistent; }
+
+  void setNotifications(std::shared_ptr<CoAP::Notifications> notifications);
+
+  void clearNotifications();
 };

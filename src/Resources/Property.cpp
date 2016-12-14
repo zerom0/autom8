@@ -43,3 +43,14 @@ std::shared_ptr<CoAP::Notifications> Property::subscribe() {
   observer_.emplace_back(notifications);
   return notifications;
 }
+
+void Property::setNotifications(std::shared_ptr<CoAP::Notifications> notifications) {
+  notifications_ = notifications;
+  notifications_->subscribe([this](const CoAP::RestResponse& response) {
+    setValue(response.payload(), true);
+  });
+}
+
+void Property::clearNotifications() {
+  notifications_.reset();
+}
