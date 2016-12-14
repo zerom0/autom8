@@ -9,7 +9,9 @@ set(SRCS
         Resources/Or.cpp
         Resources/Property.cpp
         Resources/Resource.cpp
-        Resources/Resources.cpp)
+        Resources/Resources.cpp
+        Resources/Time.cpp
+)
 
 add_executable(autom8 ${SRCS})
 

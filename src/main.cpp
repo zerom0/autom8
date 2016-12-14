@@ -7,6 +7,7 @@
 #include "Resources/Not.h"
 #include "Resources/Or.h"
 #include "Resources/Resources.h"
+#include "Resources/Time.h"
 
 #include <coap/CoAP.h>
 #include <coap/json.h>
@@ -81,6 +82,7 @@ int main() {
       { "not", notResourceFactory },
       { "or",  orResourceFactory },
       { "out", ioResourceFactory },
+      { "time", timeResourceFactory },
   };
 
   Resources resources(resourceFactory, onResourcesModified);
