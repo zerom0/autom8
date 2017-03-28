@@ -15,10 +15,12 @@ set(SRCS
 include_directories(
         ../src
         ../src/Resources
+        ${COAP_DIR}
+        ${GTEST_INCLUDE_DIRS}
 )
 
 add_executable(testsuite ${SRCS})
 
-target_link_libraries(testsuite gtest_main gtest)
+target_link_libraries(testsuite ${GTEST_BOTH_LIBRARIES})
 
 add_test(NAME testsuite COMMAND testsuite)

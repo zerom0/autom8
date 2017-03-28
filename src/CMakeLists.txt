@@ -8,13 +8,19 @@ set(SRCS
         Resources/Not.cpp
         Resources/Or.cpp
         Resources/Property.cpp
+        Resources/Relation.cpp
         Resources/Resource.cpp
         Resources/Resources.cpp
-        Resources/Time.cpp
+#        Resources/Time.cpp
 )
+
+include_directories(
+        ${COAP_DIR}
+)
+
 
 add_executable(autom8 ${SRCS})
 
-target_link_libraries(autom8 pthread coap)
+target_link_libraries(autom8 pthread ${COAP_LIB})
 
 install(TARGETS autom8 RUNTIME DESTINATION bin)
