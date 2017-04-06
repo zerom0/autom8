@@ -6,7 +6,7 @@
 
 #include "Property.h"
 
-#include <CoAP/Optional.h>
+#include <coap/Optional.h>
 
 #include <map>
 #include <string>

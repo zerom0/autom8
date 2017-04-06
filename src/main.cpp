@@ -3,11 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "Resources/And.h"
+#include "Resources/History.h"
 #include "Resources/IO.h"
 #include "Resources/Not.h"
 #include "Resources/Or.h"
-#include "Resources/Resources.h"
 #include "Resources/Relation.h"
+#include "Resources/Resources.h"
 #include "Resources/TimeX.h"
 
 #include <coap/CoAP.h>
@@ -79,6 +80,7 @@ int main() {
 
   ResourceFactory resourceFactory = {
       { "and", andResourceFactory },
+      { "history", historyResourceFactory },
       { "in",  ioResourceFactory },
       { "not", notResourceFactory },
       { "or",  orResourceFactory },
