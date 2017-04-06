@@ -12,7 +12,7 @@
 using std::placeholders::_1;
 using std::placeholders::_2;
 
-SETLOGLEVEL(LLDEBUG)
+SETLOGLEVEL(LLWARNING)
 
 Resource* newOrResource(InputValueUpdated callback, const std::map<std::string, std::string>& values) {
   TLOG << "newOrResource()\n";

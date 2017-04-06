@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "Resources/And.h"
+#include "Resources/Formula.h"
 #include "Resources/History.h"
 #include "Resources/IO.h"
 #include "Resources/Not.h"
@@ -80,6 +81,7 @@ int main() {
 
   ResourceFactory resourceFactory = {
       { "and", andResourceFactory },
+      { "formula", formulaResourceFactory },
       { "history", historyResourceFactory },
       { "in",  ioResourceFactory },
       { "not", notResourceFactory },

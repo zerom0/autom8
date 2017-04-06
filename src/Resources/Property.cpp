@@ -7,7 +7,7 @@
 #include <coap/CoAP.h>
 #include <coap/Logging.h>
 
-SETLOGLEVEL(LLDEBUG)
+SETLOGLEVEL(LLWARNING)
 
 std::string Property::getValue() const {
   TLOG << "Property::getValue() -> " << value_ << "\n";

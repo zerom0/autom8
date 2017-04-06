@@ -3,10 +3,12 @@ project(autom8)
 
 set(SRCS
         AndTests.cpp
+        FormulaTests.cpp
         NotTests.cpp
         ResourceTests.cpp
         OrTests.cpp
         ../src/Resources/And.cpp
+        ../src/Resources/Formula.cpp
         ../src/Resources/Not.cpp
         ../src/Resources/Resource.cpp
         ../src/Resources/Property.cpp
