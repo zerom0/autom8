@@ -22,7 +22,7 @@ Resource* newOrResource(InputValueUpdated callback, const std::map<std::string, 
   r->createProperty("inputCount", std::bind(inputCountUpdated, r, callback, _1, _2), Property::Persistent);
   r->getProperty("inputCount")->setValue(getValueOr(values, "inputCount", "2"));
 
-  for (auto it = begin(values); it != end(values); ++it) r->getProperty(it->first)->setValue(it->second);
+  r->init(values);
 
   return r;
 }

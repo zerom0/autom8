@@ -23,7 +23,7 @@ Resource* newAndResource(InputValueUpdated callback, const std::map<std::string,
   auto inputCount = r->createProperty("inputCount", std::bind(inputCountUpdated, r, callback, _1, _2), Property::Persistent);
   inputCount->setValue(getValueOr(values, "inputCount", "2"));
 
-  for (auto it = begin(values); it != end(values); ++it) r->getProperty(it->first)->setValue(it->second);
+  r->init(values);
 
   return r;
 }

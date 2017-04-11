@@ -74,7 +74,7 @@ Resource* newFormulaResource(InputValueUpdated callback, const std::map<std::str
   auto value = r->createProperty("inputValue", std::bind(callback, r, "inputValue", _1, _2), Property::Volatile);
   r->createProperty("inputURI", std::bind(inputURIUpdated, value, _1, _2), Property::Persistent);
 
-  for (auto it = begin(values); it != end(values); ++it) r->getProperty(it->first)->setValue(it->second);
+  r->init(values);
 
   return r;
 }

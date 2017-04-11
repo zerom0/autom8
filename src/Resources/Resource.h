@@ -26,6 +26,13 @@ class Resource {
 
  public:
   /**
+   * Initializes the resources properties with values.
+   *
+   * @param values
+   */
+  void init(const std::map<std::string, std::string> &values);
+
+  /**
    * Returns a list of the resources properties.
    *
    * @return List of properties.

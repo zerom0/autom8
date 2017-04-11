@@ -21,7 +21,7 @@ Resource* newTimeResource(InputValueUpdated callback, const std::map<std::string
   auto r = new Resource();
   r->createProperty("value", std::bind(callback, r, "value", _1, _2), Property::Persistent);
 
-  for (auto it = begin(values); it != end(values); ++it) r->getProperty(it->first)->setValue(it->second);
+  r->init(values);
 
   return r;
 }

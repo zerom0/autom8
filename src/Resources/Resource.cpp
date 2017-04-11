@@ -44,6 +44,12 @@ void inputCountUpdated(Resource* resource,
   }
 }
 
+void Resource::init(const std::map<std::string, std::string> &values) {
+  for (auto& property : values) {
+    getProperty(property.first)->setValue(property.second);
+  }
+}
+
 std::list<std::string> Resource::read() const {
   TLOG << "Resource::read()\n";
 
@@ -95,3 +101,4 @@ std::string Resource::to_json() const {
   }
   return "{" + json + "}";
 }
+
