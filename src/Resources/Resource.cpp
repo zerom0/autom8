@@ -102,3 +102,19 @@ std::string Resource::to_json() const {
   return "{" + json + "}";
 }
 
+bool reduceInputValues(Resource *resource, unsigned count, bool startValue, std::function<bool(bool, bool)> combinator) {
+  bool inputValue;
+  CoAP::from_json(resource->getProperty("input" + std::to_string(count) + "Value")->getValue(), inputValue);
+
+  return combinator(startValue,
+                    (count > 0) ? reduceInputValues(resource, count - 1, inputValue, combinator)
+                                : inputValue);
+}
+
+bool reduceInputValues(Resource *resource, bool startValue, std::function<bool(bool, bool)> combinator) {
+  unsigned count;
+  CoAP::from_json(resource->getProperty("inputCount")->getValue(), count);
+
+  return reduceInputValues(resource, count - 1, startValue, combinator);
+}
+

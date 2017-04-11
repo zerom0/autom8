@@ -34,17 +34,7 @@ void andResourceUpdated(Resource* resource, const std::string& propertyName, con
   if (propertyName.find("input") != 0) return;
 
   try {
-    unsigned count;
-    CoAP::from_json(resource->getProperty("inputCount")->getValue(), count);
-
-    auto value = true;
-
-    for (unsigned i = 0; i < count; ++i) {
-      bool inputValue;
-      CoAP::from_json(resource->getProperty("input" + std::to_string(i) + "Value")->getValue(), inputValue);
-      value &= inputValue;
-    }
-
+    auto value = reduceInputValues(resource, true, [](bool l, bool r){return l && r;});
     resource->getProperty("value")->setValue(CoAP::to_json(value), true);
   }
   catch (std::runtime_error& e) {

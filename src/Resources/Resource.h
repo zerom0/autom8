@@ -73,3 +73,17 @@ inline std::string getValueOr(const std::map<std::string, std::string>& values, 
   auto it = values.find(key);
   return (it != end(values)) ? it->second : alternative;
 }
+
+/**
+ * Reduces the input values of the resource by applying the combinator to each
+ * two values, starting with startValue.
+ *
+ * Example for resource with 3 input values:
+ *   combinator(startValue, combinator("Input0Value", combinator("Input1Value", "Input2Value")))
+ *
+ * @param resource
+ * @param startValue
+ * @param combinator
+ * @return
+ */
+bool reduceInputValues(Resource *resource, bool startValue, std::function<bool(bool, bool)> combinator);
