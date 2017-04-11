@@ -71,7 +71,7 @@ void onResourcesModified(const Resources& resources) {
   string temp = resources.to_json();
   if (temp != persistence) {
     persistence = temp;
-    auto file = std::ofstream("autom8.dat");
+    std::ofstream file("autom8.dat");
     file << persistence;
   }
 }
@@ -92,7 +92,7 @@ int main() {
   };
 
   Resources resources(resourceFactory, onResourcesModified);
-  auto file = std::ifstream("autom8.dat");
+  std::ifstream file("autom8.dat");
   if (file.is_open()) {
     getline(file, fromPersistence);
   }
