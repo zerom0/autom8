@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.7)
 project(autom8)
 
 set(SRCS
+        hw/I2C.cpp
         main.cpp
         Resources/And.cpp
         Resources/Formula.cpp

@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "hw/I2C.h"
+
 #include "Resources/And.h"
 #include "Resources/Formula.h"
 #include "Resources/History.h"
@@ -56,14 +58,10 @@ void inputURIUpdated(Property* property, const string& oldURI, const string& new
 
 string fromPersistence =
     "{"
-        "\"/in/fenster\":{\"inputURI\":\"\"},"
-        "\"/in/tuere\":{\"inputURI\":\"\"},"
-        "\"/and/all_closed\":{"
-            "\"input0URI\":\"coap://127.0.0.1:5683/in/fenster/value\","
-            "\"input1URI\":\"coap://127.0.0.1:5683/in/tuere/value\","
-            "\"inputCount\":\"2\""
-        "},"
-        "\"/not/alarm\":{\"inputURI\":\"coap://127.0.0.1:5683/and/all_closed/value\"}"
+        "\"/in/a0\":{\"inputURI\":\"\"},"
+        "\"/in/a1\":{\"inputURI\":\"\"},"
+        "\"/in/a2\":{\"inputURI\":\"\"},"
+        "\"/in/a3\":{\"inputURI\":\"\"}"
     "}";
 
 void onResourcesModified(const Resources& resources) {
@@ -114,7 +112,27 @@ int main() {
           .onPut(bind(&Resources::updateProperty, &resources, _1, _2))
           .onObserve(bind(&Resources::observeProperty, &resources, _1, _2));
 
+  I2C adConverter(0x48);
+
+  time_t last_update{0};
+
   for(;;) {
     messaging->loopOnce();
+    time_t current_time = time(nullptr);
+    if(current_time - last_update > 5) {
+      adConverter.write_byte(0);
+      adConverter.read_byte();
+      resources.updateProperty(Path("/in/a0/value"), CoAP::to_json((double)adConverter.read_byte()));
+      adConverter.write_byte(1);
+      adConverter.read_byte();
+      resources.updateProperty(Path("/in/a1/value"), CoAP::to_json((double)adConverter.read_byte()));
+      adConverter.write_byte(2);
+      adConverter.read_byte();
+      resources.updateProperty(Path("/in/a2/value"), CoAP::to_json((double)adConverter.read_byte()));
+      adConverter.write_byte(3);
+      adConverter.read_byte();
+      resources.updateProperty(Path("/in/a3/value"), CoAP::to_json((double)adConverter.read_byte()));
+      last_update = current_time;
+    }
   }
 }
