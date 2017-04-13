@@ -9,12 +9,12 @@
 
 TEST(Not, true) {
   auto resource = notResourceFactory(std::map<std::string, std::string>{});
-  resource->getProperty("inputValue")->setValue("true");
+  resource->getProperty("inputValue")->setValue("true", true);
   ASSERT_EQ("false", resource->getProperty("value")->getValue());
 }
 
 TEST(Not, false) {
   auto resource = notResourceFactory(std::map<std::string, std::string>{});
-  resource->getProperty("inputValue")->setValue("false");
+  resource->getProperty("inputValue")->setValue("false", true);
   ASSERT_EQ("true", resource->getProperty("value")->getValue());
 }

@@ -20,8 +20,8 @@ Resource* newNotResource(InputValueUpdated callback, const std::map<std::string,
   auto r = new Resource();
   r->createProperty("value", Property::ReadOnly, Property::Volatile);
 
-  auto value = r->createProperty("inputValue", std::bind(callback, r, "inputValue", _1, _2), Property::Volatile);
-  r->createProperty("inputURI", std::bind(inputURIUpdated, value, _1, _2), Property::Persistent);
+  auto value = r->createProperty("inputValue", Property::ReadOnly, Property::Volatile)->onUpdate(std::bind(callback, r, "inputValue", _1, _2));
+  r->createProperty("inputURI", Property::ReadWrite, Property::Persistent)->onUpdate(std::bind(inputURIUpdated, value, _1, _2));
 
   r->init(values);
 

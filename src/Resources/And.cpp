@@ -20,8 +20,9 @@ Resource* newAndResource(InputValueUpdated callback, const std::map<std::string,
   auto r = new Resource();
   r->createProperty("value", Property::ReadOnly, Property::Volatile);
 
-  auto inputCount = r->createProperty("inputCount", std::bind(inputCountUpdated, r, callback, _1, _2), Property::Persistent);
-  inputCount->setValue(getValueOr(values, "inputCount", "2"));
+  r->createProperty("inputCount", Property::ReadWrite, Property::Persistent)
+      ->onUpdate(std::bind(inputCountUpdated, r, callback, _1, _2))
+      ->setValue(getValueOr(values, "inputCount", "2"));
 
   r->init(values);
 

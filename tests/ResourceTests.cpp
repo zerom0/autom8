@@ -118,7 +118,8 @@ TEST(Resource, updateProperty_WithObserver) {
     ++observerCalled;
   };
 
-  Property p(observer, Property::Volatile);
+  Property p(Property::ReadWrite, Property::Volatile);
+  p.onUpdate(observer);
   r.createProperty(propName, p);
 
   r.getProperty(propName)->setValue("new");

@@ -19,8 +19,10 @@ Resource* newRelationResource(InputValueUpdated callback, const std::map<std::st
 
     auto r = new Resource();
     r->createProperty("value", Property::ReadOnly, Property::Volatile);
-    r->createProperty("inputCount", std::bind(inputCountUpdated, r, callback, _1, _2), Property::Persistent);
-    r->getProperty("inputCount")->setValue(getValueOr(values, "inputCount", "2"));
+
+    r->createProperty("inputCount", Property::ReadWrite, Property::Persistent)
+        ->onUpdate(std::bind(inputCountUpdated, r, callback, _1, _2))
+        ->setValue(getValueOr(values, "inputCount", "2"));
 
     for (auto it = begin(values); it != end(values); ++it) r->getProperty(it->first)->setValue(it->second);
 

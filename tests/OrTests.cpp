@@ -9,38 +9,38 @@
 
 TEST(Or, bothFalse) {
   auto resource = orResourceFactory(std::map<std::string, std::string>{});
-  resource->getProperty("input0Value")->setValue("false");
-  resource->getProperty("input1Value")->setValue("false");
+  resource->getProperty("input0Value")->setValue("false", true);
+  resource->getProperty("input1Value")->setValue("false", true);
   ASSERT_EQ("false", resource->getProperty("value")->getValue());
 }
 
 TEST(Or, firstTrueSecondFalse) {
   auto resource = orResourceFactory(std::map<std::string, std::string>{});
-  resource->getProperty("input0Value")->setValue("true");
-  resource->getProperty("input1Value")->setValue("false");
+  resource->getProperty("input0Value")->setValue("true", true);
+  resource->getProperty("input1Value")->setValue("false", true);
   ASSERT_EQ("true", resource->getProperty("value")->getValue());
 }
 
 TEST(Or, firstFalseSecondTrue) {
   auto resource = orResourceFactory(std::map<std::string, std::string>{});
-  resource->getProperty("input0Value")->setValue("false");
-  resource->getProperty("input1Value")->setValue("true");
+  resource->getProperty("input0Value")->setValue("false", true);
+  resource->getProperty("input1Value")->setValue("true", true);
   ASSERT_EQ("true", resource->getProperty("value")->getValue());
 }
 
 TEST(Or, bothTrue) {
   auto resource = orResourceFactory(std::map<std::string, std::string>{});
-  resource->getProperty("input0Value")->setValue("true");
-  resource->getProperty("input1Value")->setValue("true");
+  resource->getProperty("input0Value")->setValue("true", true);
+  resource->getProperty("input1Value")->setValue("true", true);
   ASSERT_EQ("true", resource->getProperty("value")->getValue());
 }
 
 TEST(Or, threeInputs) {
   auto resource = orResourceFactory(std::map<std::string, std::string>{});
   resource->getProperty("inputCount")->setValue("3");
-  resource->getProperty("input0Value")->setValue("false");
-  resource->getProperty("input1Value")->setValue("false");
+  resource->getProperty("input0Value")->setValue("false", true);
+  resource->getProperty("input1Value")->setValue("false", true);
   ASSERT_EQ("false", resource->getProperty("value")->getValue());
-  resource->getProperty("input2Value")->setValue("true");
+  resource->getProperty("input2Value")->setValue("true", true);
   ASSERT_EQ("true", resource->getProperty("value")->getValue());
 }

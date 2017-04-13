@@ -68,11 +68,14 @@ Resource* newFormulaResource(InputValueUpdated callback, const std::map<std::str
   auto r = new Resource();
   r->createProperty("value", Property::ReadOnly, Property::Volatile);
 
-  r->createProperty("formula", Property::ReadWrite, Property::Persistent);
-  r->getProperty("formula")->setValue("$1", true);
+  r->createProperty("formula", Property::ReadWrite, Property::Persistent)
+      ->setValue("$1", true);
 
-  auto value = r->createProperty("inputValue", std::bind(callback, r, "inputValue", _1, _2), Property::Volatile);
-  r->createProperty("inputURI", std::bind(inputURIUpdated, value, _1, _2), Property::Persistent);
+  auto value = r->createProperty("inputValue", Property::ReadOnly, Property::Volatile)
+      ->onUpdate(std::bind(callback, r, "inputValue", _1, _2));
+
+  r->createProperty("inputURI", Property::ReadWrite, Property::Persistent)
+      ->onUpdate(std::bind(inputURIUpdated, value, _1, _2));
 
   r->init(values);
 

@@ -30,18 +30,21 @@ Resource* newHistoryResource(InputValueUpdated callback, const std::map<std::str
   TLOG << "newHistoryResource()\n";
 
   auto r = new Resource();
-  r->createProperty("values", Property::ReadOnly, Property::Volatile);
-  r->getProperty("values")->setValue("[]", true);
+  r->createProperty("values", Property::ReadOnly, Property::Volatile)
+      ->setValue("[]", true);
 
-  r->createProperty("maxSize", Property::ReadOnly, Property::Persistent);
-  r->getProperty("maxSize")->setValue("10", true);
+  r->createProperty("maxSize", Property::ReadWrite, Property::Persistent)
+      ->setValue("10", true);
 
   r->createProperty("min", Property::ReadOnly, Property::Volatile);
   r->createProperty("max", Property::ReadOnly, Property::Volatile);
   r->createProperty("average", Property::ReadOnly, Property::Volatile);
 
-  auto value = r->createProperty("inputValue", std::bind(callback, r, "inputValue", _1, _2), Property::Volatile);
-  r->createProperty("inputURI", std::bind(inputURIUpdated, value, _1, _2), Property::Persistent);
+  auto value = r->createProperty("inputValue", Property::ReadWrite, Property::Volatile)
+      ->onUpdate(std::bind(callback, r, "inputValue", _1, _2));
+
+  r->createProperty("inputURI", Property::ReadWrite, Property::Persistent)
+      ->onUpdate(std::bind(inputURIUpdated, value, _1, _2));
 
   r->init(values);
 
@@ -57,14 +60,13 @@ void historyResourceUpdated(Resource* resource, const std::string& propertyName,
     std::list<double> values;
     CoAP::from_json(resource->getProperty("values")->getValue(), values);
 
-    int maxSize;
-    CoAP::from_json(resource->getProperty("maxSize")->getValue(), maxSize);
-
-    while (values.size() >= maxSize) values.pop_front();
-
     double value;
     CoAP::from_json(newValue, value);
     values.emplace_back(value);
+
+    int maxSize;
+    CoAP::from_json(resource->getProperty("maxSize")->getValue(), maxSize);
+    while (values.size() >= maxSize) values.pop_front();
 
     double minValue = 0;
     double maxValue = 0;

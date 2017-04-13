@@ -42,8 +42,9 @@ class Property {
  public:
   Property(Access access, Livetime livetime) : access_(access), livetime_(livetime) { }
 
-  Property(std::function<void(const std::string&, const std::string&)> onUpdate, Livetime livetime)
-      : livetime_(livetime), onUpdate_(onUpdate) {
+  Property* onUpdate(std::function<void(const std::string&, const std::string&)> updateHandler) {
+    onUpdate_ = updateHandler;
+    return this;
   }
 
   std::string getValue() const;
